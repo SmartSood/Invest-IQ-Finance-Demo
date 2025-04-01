@@ -25,7 +25,7 @@ export function SignInPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/auth/signin", {
+      const response = await fetch("https://invest-iq-finance-demo-1.onrender.com/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

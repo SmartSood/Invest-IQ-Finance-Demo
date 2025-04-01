@@ -25,7 +25,7 @@ export function LevelApp() {
     // Memoize the fetch function
     const fetchLevelData = useCallback(async () => {
         try {
-            const response = await fetch(`http://localhost:5001/api/levels/1/${levelId}`);
+            const response = await fetch(`https://invest-iq-finance-demo-1.onrender.com/api/levels/1/${levelId}`);
             if (!response.ok) {
                 throw new Error(t(`HTTP error! status: ${response.status}`));
             }

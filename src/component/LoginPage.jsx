@@ -19,7 +19,7 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await fetch("http://localhost:5001/api/auth/signup", {
+            const response = await fetch("https://invest-iq-finance-demo-1.onrender.com/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fullname, email, password }),
