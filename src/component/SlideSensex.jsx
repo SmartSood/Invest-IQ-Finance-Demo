@@ -206,19 +206,7 @@ export function SlideSensex() {
           ))}
         </div>
       </div>
-      <div className="flex items-center space-x-2">
-        <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-        <FaSync 
-          className="text-gray-600 cursor-pointer hover:text-blue-600 transition-colors" 
-          onClick={handleRefresh}
-        />
-        <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-        <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-        <FaCog 
-          className="text-gray-600 cursor-pointer hover:text-blue-600 transition-colors" 
-          onClick={() => setIsPaused(!isPaused)}
-        />
-      </div>
+
     </div>
   );
     

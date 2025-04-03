@@ -3,7 +3,7 @@ import mongoose from "mongoose";  // Add this back for auth routes
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import { MongoClient } from "mongodb";
-import { Translate } from "@google-cloud/translate/build/src/v2/index.js";
+
 // server.js
 import axios from 'axios';  // Make sure to import axios
 import cors from 'cors'
