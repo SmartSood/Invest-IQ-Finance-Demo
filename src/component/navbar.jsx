@@ -51,6 +51,17 @@ const Navbar = () => {
     };
   }, [language, t]);
 
+  const handleContactClick = () => {
+    navigate('/contact'); // NEW: Navigation to contact page
+  };
+
+  const handlePoliciesClick = () => {
+    navigate('/policies'); // NEW: Navigation to contact page
+  };
+  const handleAboutClick = () => {
+    navigate('/about'); // NEW: Navigation to contact page
+  };
+
   const handleMouseEnter = (setOpen, closeOther) => {
     clearTimeout(featuresTimeout);
     clearTimeout(languageTimeout);
@@ -154,12 +165,27 @@ const Navbar = () => {
           )}
         </div>
 
-        <a href="#" className="hover:text-gray-500">{translatedContent.about}</a>
-        <a href="#" className="hover:text-gray-500">{translatedContent.contact}</a>
-        <a href="#" className="hover:text-gray-500">{translatedContent.policies}</a>
+        <button 
+          onClick={handleAboutClick} // CHANGED: Changed from <a> to <button> with onClick
+          className="hover:text-gray-500"
+        >
+          {translatedContent.about}
+        </button>
+        <button 
+          onClick={handleContactClick} // CHANGED: Changed from <a> to <button> with onClick
+          className="hover:text-gray-500"
+        >
+          {translatedContent.contact}
+        </button>
+        <button 
+          onClick={handlePoliciesClick} // CHANGED: Changed from <a> to <button> with onClick
+          className="hover:text-gray-500"
+        >
+          {translatedContent.policies}
+        </button>
       </div>
       <button 
-        className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800" 
+        className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-500" 
         onClick={handleGetStarted}
       >
         {user ? translatedContent.goToDashboard : translatedContent.getStarted}

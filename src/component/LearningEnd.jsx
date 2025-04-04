@@ -114,7 +114,7 @@ import Icon5 from '../assets/Vector4.jpg';
 import TranslatorText from './Text';
 import { useTranslationContext } from '../context/TranslationContext';
 
-export function Fotter_Page() {
+export function FooterPage() {
   const { t, language, changeLanguage } = useTranslationContext();
   const circleIcons = [Icon1, Icon2, Icon3, Icon4, Icon5];
 
