@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslationContext } from '../context/TranslationContext';
 import TranslatorText from './Text';
 
+
 export function SignInPage() {
   const navigate = useNavigate();
   const { login } = useAuth();

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./navbarModule";
@@ -9,6 +7,7 @@ import TranslatorText from './Text';
 import { useTranslationContext } from '../context/TranslationContext';
 import { translateText } from '../services/translationService';
 import { Chatbot } from "./ChatBot";
+
 export function Dashboard() {
   const navigate = useNavigate();
   const { t, language } = useTranslationContext();
@@ -17,11 +16,16 @@ export function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState(t("All Finance News"));
   const [searchMode, setSearchMode] = useState("category");
   const [customQuery, setCustomQuery] = useState("");
+  const [location, setLocation] = useState(t("All India")); // Added location state
   const [newsResults, setNewsResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [gradioClient, setGradioClient] = useState(null);
+  const [dropdownOptions, setDropdownOptions] = useState({ // Added dropdown options
+    categoryOptions: [t("All Finance News")],
+    locationOptions: [t("All India")]
+  });
 
   const slides = [
     {
@@ -46,13 +50,26 @@ export function Dashboard() {
 
   const categories = [
     "All Finance News",
-    "Stock Marketzz",
+    "Stock Market",
     "Banking & RBI",
     "Taxation",
     "Investments",
     "Economic Indicators",
     "Corporate Finance",
     "Personal Finance"
+  ];
+
+  const locations = [ // Added locations array
+    "All India",
+    "Delhi NCR",
+    "Mumbai",
+    "Bangalore",
+    "Hyderabad",
+    "Chennai",
+    "Kolkata",
+    "Pune",
+    "Ahmedabad",
+    "Jaipur"
   ];
 
   useEffect(() => {
@@ -64,6 +81,18 @@ export function Dashboard() {
       try {
         const client = await Client.connect("ayushraj0906/FinNews");
         setGradioClient(client);
+        
+        // Initialize dropdown options
+        const toggleResult = await client.predict("/toggle_search_ui", {
+          search_mode: searchMode
+        });
+        
+        if (toggleResult?.data && toggleResult.data.length >= 2) {
+          setDropdownOptions({
+            categoryOptions: categories.map(cat => t(cat)),
+            locationOptions: locations.map(loc => t(loc))
+          });
+        }
       } catch (error) {
         console.error("Failed to initialize Gradio client:", error);
         setError(t("Failed to connect to news service. Please refresh the page."));
@@ -100,7 +129,6 @@ export function Dashboard() {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
     
-    // Extract text content for translation while preserving HTML structure
     const body = doc.body;
     const textNodes = [];
     const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
@@ -112,13 +140,11 @@ export function Dashboard() {
       }
     }
     
-    // Translate each text node
     for (const node of textNodes) {
       const translated = await translateContent(node.textContent);
       node.textContent = translated;
     }
     
-    // Process articles if present
     const articleElements = body.querySelectorAll('[data-article], article, .news-item');
     
     if (articleElements.length > 0) {
@@ -148,7 +174,8 @@ export function Dashboard() {
       const params = {
         search_mode: searchMode,
         category_query: selectedCategory,
-        custom_query: searchMode === "custom" ? customQuery : "N/A"
+        custom_query: searchMode === "custom" ? customQuery : "N/A",
+        location: location // Added location to params
       };
 
       if (searchMode === "category") {
@@ -184,6 +211,26 @@ export function Dashboard() {
     }
   };
 
+  const handleSearchModeChange = async (mode) => {
+    setSearchMode(mode);
+    if (gradioClient) {
+      try {
+        const result = await gradioClient.predict("/toggle_search_ui", {
+          search_mode: mode
+        });
+        
+        if (result?.data && result.data.length >= 2) {
+          setDropdownOptions({
+            categoryOptions: categories.map(cat => t(cat)),
+            locationOptions: locations.map(loc => t(loc))
+          });
+        }
+      } catch (error) {
+        console.error("Error toggling search UI:", error);
+      }
+    }
+  };
+
   return (
     <div className="w-full">
       <Navbar />
@@ -209,7 +256,13 @@ export function Dashboard() {
                       <img 
                         src={slide.imageUrl} 
                         alt={slide.title}
-                        className="absolute top-0 left-0 w-full h-full object-cover"
+                        className="w-full h-full object-cover"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          objectPosition: 'center'
+                        }}
                       />
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
@@ -262,7 +315,7 @@ export function Dashboard() {
                           className="form-radio h-4 w-4 text-blue-600"
                           name="searchMode"
                           checked={searchMode === "category"}
-                          onChange={() => setSearchMode("category")}
+                          onChange={() => handleSearchModeChange("category")}
                         />
                         <span className="ml-2"><TranslatorText>category</TranslatorText></span>
                       </label>
@@ -272,7 +325,7 @@ export function Dashboard() {
                           className="form-radio h-4 w-4 text-blue-600"
                           name="searchMode"
                           checked={searchMode === "custom"}
-                          onChange={() => setSearchMode("custom")}
+                          onChange={() => handleSearchModeChange("custom")}
                         />
                         <span className="ml-2"><TranslatorText>custom</TranslatorText></span>
                       </label>
@@ -287,7 +340,7 @@ export function Dashboard() {
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                       >
-                        {categories.map((category) => (
+                        {dropdownOptions.categoryOptions.map((category) => (
                           <option key={category} value={category}>
                             <TranslatorText>{category}</TranslatorText>
                           </option>
@@ -306,6 +359,22 @@ export function Dashboard() {
                       />
                     </div>
                   )}
+                  
+                  {/* Added Location Dropdown */}
+                  <div className="mb-4">
+                    <label className="block font-medium mb-2"><TranslatorText>Select Location</TranslatorText></label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                    >
+                      {dropdownOptions.locationOptions.map((loc) => (
+                        <option key={loc} value={loc}>
+                          <TranslatorText>{loc}</TranslatorText>
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   
                   <button
                     onClick={handleGetNews}

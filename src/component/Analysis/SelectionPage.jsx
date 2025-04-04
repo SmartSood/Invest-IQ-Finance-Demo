@@ -46,9 +46,7 @@ function SelectionPage() {
                     <div className="text-black text-[30px] font-bold font-['Aeonik_TRIAL'] mb-2 break-words">
                         <TranslatorText>What would you like to choose?</TranslatorText>
                     </div>
-                    <div className="text-[#6F6C90] text-lg font-normal font-['Aeonik_TRIAL']">
-                        <TranslatorText>Text here-subtitle</TranslatorText>
-                    </div>
+                    
                 </div>
 
                 {/* Options with increased bottom padding */}
