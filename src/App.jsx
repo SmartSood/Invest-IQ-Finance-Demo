@@ -43,13 +43,16 @@ function App() {
         <Router>
           <Routes>
             <Route path='/' element={
-              <div className="w-[1440px] h-[3698px] bg-[#F1F2F4]">
-                <Navbar/>
+              <div className="w-[px] h-[px] bg-[#F1F2F4]">
+               <Navbar/>
                 <br />
                 <div className="flex bg-[#F1F2F4] h-[calc(100vh-80px)] px-5">
                   <Card1/>
+                  <div className='px-2'></div>
                   <Card2/>
+                  
                 </div>
+                
                 <br />
                 <div className='min-h-screen px-5 flex rounded-2xl'>
                   <div>

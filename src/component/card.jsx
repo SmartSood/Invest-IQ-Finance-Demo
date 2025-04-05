@@ -3,7 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from "react-router-dom";
 import { useTranslationContext } from "../context/TranslationContext";
 import TranslatorText from "./Text";
-
+import img2landingpage from "../assets/img2landingpage.jpg"
+import img3landingpage from "../assets/img3landingpage.jpg"
 export function Card2({ Card2img }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   
@@ -16,14 +17,13 @@ export function Card2({ Card2img }) {
     },
     {
       id: 2,
-      imageUrl: "https://images.pexels.com/photos/6771882/pexels-photo-6771882.jpeg?auto=compress&cs=tinysrgb&w=600",
+      imageUrl: img2landingpage,
       title: "Financial Planning",
       description: "Learn smart budgeting techniques"
     },
     {
       id: 3,
-      imageUrl: "https://images.pexels.com/photos/3943727/pexels-photo-3943727.jpeg?auto=compress&cs=tinysrgb&w=600",
-      title: "Investment Strategies",
+      imageUrl: img3landingpage,
       description: "Grow your wealth effectively"
     }
   ];
@@ -36,7 +36,7 @@ export function Card2({ Card2img }) {
   }, [slides.length]);
 
   return (
-    <div className="w-3xl justify-self-end rounded-R-xl relative h-full">
+    <div className="w-3xl justify-self-end rounded-xl relative h-full">
       <div className="relative h-full w-full">
         {slides.map((slide, index) => (
           <div 
@@ -46,7 +46,7 @@ export function Card2({ Card2img }) {
             <img
               src={slide.imageUrl}
               alt={slide.title}
-              className="w-full h-full object-cover rounded-r-xl"
+              className="w-full h-full object-cover rounded-xl"
             />
           </div>
         ))}
@@ -91,7 +91,7 @@ export function Card1() {
   };
   
   return (
-    <div className="flex bg-white rounded-l-xl">
+    <div className="flex w-[50%]  bg-white rounded-xl">
       <div className="flex flex-col justify-center p-10">
         <div className="mb-10">
           <h1 className="text-[70px] leading-[80px] text-[#0C0D0E] font-[Aeonik TRIAL]">
@@ -120,18 +120,20 @@ export function Card1() {
             <TranslatorText>Analysis Portfolio</TranslatorText>  
           </button>
         </div>
-
+        <br />
+        <br />
         <div className="flex gap-10">
           <div className="text-center">
             <h3 className="text-[48px] leading-[56px] font-[Aeonik TRIAL] text-black"><TranslatorText>20+</TranslatorText></h3>
-            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Comprehensive Financial Courses</TranslatorText></p>
+            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Comprehensive <br />Financial Courses</TranslatorText></p>
           </div>
           <div className="text-center">
             <h3 className="text-[48px] leading-[56px] font-[Aeonik TRIAL] text-black">4K+</h3>
-            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Learners Growing Their Wealth</TranslatorText></p>
+            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Learners Growing Their <br />Wealth With Us</TranslatorText></p>
           </div>
         </div>
       </div>
+
     </div>
   );
 }
@@ -186,7 +188,7 @@ const FinancialInfo = () => {
   };
 
   return (
-    <div className="w-150 rounded-2xl bg-white flex-wrap">
+    <div className="w-[px] rounded-2xl bg-white flex-wrap">
       <h2 className="text-customBlack font-aeonik text-[64px] not-italic font-normal leading-[80px]">
         <TranslatorText>Your Personalized Path to Financial Freedom</TranslatorText>   
       </h2>

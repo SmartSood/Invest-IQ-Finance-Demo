@@ -24,7 +24,7 @@ export default function  DashboardLayout({ children, activeSection, setActiveSec
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans">
+    <div className=" h-screen bg-gray-100 font-sans">
       <div className="ml-64  p-5 w-[83%]">
         {/* Sidebar */}
         <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white p-5 shadow-md flex flex-col justify-between">

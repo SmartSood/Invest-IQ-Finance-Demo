@@ -30,7 +30,7 @@ function Questionnaire() {
     };
 
     return (
-        <div className="w-full h-screen relative bg-gray-100 overflow-hidden">
+        <div className="w-full h-[630px] relative bg-gray-100 ">
             <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[996px] h-[606px] bg-white shadow-md rounded-[34px] border border-gray-100 p-10">
                 {/* Title Section */}
                 <div className="mb-8">

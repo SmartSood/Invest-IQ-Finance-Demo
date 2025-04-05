@@ -4,7 +4,8 @@ import DashboardLayout from "../DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useTranslationContext } from '../../context/TranslationContext';
 import TranslatorText from "../Text";
-
+import portfolioanalyzer from "../../assets/portfolioanalyzer.jpg"
+import trendAnalyzer from "../../assets/trendanalyzerpic.jpg";
 function SelectionPage() {
     const { t } = useTranslationContext();
     const navigate = useNavigate();
@@ -15,13 +16,13 @@ function SelectionPage() {
         {
             title: t("Portfolio Analyzer"),
             description: "",
-            image: "https://placehold.co/400x293",
+            image: portfolioanalyzer,
             link: "/login/analysis/portfolioAnalyzer"
         },
         {
             title: t("Trend Analyzer"),
             description: "",
-            image: "https://placehold.co/400x293",
+            image: trendAnalyzer,
             link: "/login/analysis/trendAnalyzer"
         }
     ];
@@ -39,8 +40,8 @@ function SelectionPage() {
     };
 
     return (
-        <div className="w-full h-screen relative bg-gray-100 overflow-y-auto">
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[996px] min-h-[606px] bg-white shadow-md rounded-[34px] border border-gray-100 p-10 flex flex-col">
+        <div className="w-full h-[630px] relative bg-gray-100 ">
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[996px]h-[606px] bg-white shadow-md rounded-[34px] border border-gray-100 p-10 flex flex-col">
                 {/* Title Section */}
                 <div className="mb-12">
                     <div className="text-black text-[30px] font-bold font-['Aeonik_TRIAL'] mb-2 break-words">
@@ -50,11 +51,11 @@ function SelectionPage() {
                 </div>
 
                 {/* Options with increased bottom padding */}
-                <div className="w-full flex justify-center items-center gap-[114px] mb-16 flex-grow">
+                <div className="w-full flex justify-center items-center gap-[100px] mb flex-grow">
                     {options.map((option, index) => (
                         <div 
                             key={index}
-                            className={`w-[400px] h-[400px] bg-white rounded-[14px] flex flex-col items-start gap-[11px] cursor-pointer transition-all duration-300
+                            className={`w-[400px] h-[400px] bg-white rounded-xl flex flex-col items-start gap-[11px] cursor-pointer transition-all duration-300
                                 ${selectedOption === index ? 'ring-2 ring-black ring-offset-2' : ''}`}
                             onClick={() => handleSelect(index)}
                         >
@@ -62,7 +63,7 @@ function SelectionPage() {
                                 <img 
                                     src={option.image} 
                                     alt={option.title}
-                                    className="w-full h-[293px] rounded-t-[14px] object-cover"
+                                    className="w-full h-[293px] rounded-xl object-cover"
                                 />
                                 <div className="w-full text-center flex flex-col justify-center text-black text-[34px] font-['Aeonik_TRIAL'] font-normal leading-[40px] break-words">
                                     {option.title}

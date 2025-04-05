@@ -16,13 +16,13 @@ const Navbar = () => {
   return (
   
 
-<div>
+<div className=" h-[px]">
   <br />
   <br />
   <br />
-   <div>  <SlideSensex></SlideSensex></div>
+   <div className="bg-gray-100 max-h-screen">  <SlideSensex></SlideSensex></div>
  
-      { <div className="fixed top-0 left-0 w-full bg-white z-50 flex items-center justify-between p-4 border-b border-gray-200 shadow-md">
+      { <div className="fixed top-0 left-0 w-full bg-white z-50 flex items-center justify-between p-4 border-b border-gray-200 h-[px] shadow-md">
     <div className="flex items-center">
       <button onClick={toggleMenu}>
         <i className={`fas ${menuOpen ? "fa-times" : "fa-bars"} text-xl`}></i>

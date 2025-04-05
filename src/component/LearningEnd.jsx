@@ -133,7 +133,7 @@ export function FooterPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#000000] p-8 px-16 py-16 font-['Aeonik_TRIAL'] text-white relative">
+    <div className="h-[] bg-[#000000] p-8 px-16 py-16 font-['Aeonik_TRIAL'] text-white relative">
       <div className="flex flex-row gap-12">
         {/* Left Column */}
         <div className="w-1/2 flex flex-col justify-between">

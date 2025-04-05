@@ -7,7 +7,8 @@ import { Client } from "@gradio/client";
 import Plot from 'react-plotly.js';
 import { FiMaximize2, FiMinimize2, FiTrash2, FiExternalLink } from 'react-icons/fi';
 import { Chatbot } from '../ChatBot';
-
+import AI_Avatar from '../../assets/AI_Avatar.png'
+import person from '../../assets/person.svg'
 function TrendAnalyzer() {
   const [messages, setMessages] = useState([
     {
@@ -192,21 +193,24 @@ function TrendAnalyzer() {
   const [activeSection, setActiveSection] = useState("Analysis");
 
   return (
-    <div className="w-full h-[800px]   flex flex-col bg-gray-100">
+    <div className="w-full   flex flex-col ">
       {!isMaximized && <Navbar />}
       {!isMaximized && (
+          
         <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
-          <div className="flex-1 py-85 relative">
+          <div className="flex-1 py-100 relative">
+      
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[1200px] h-[85vh] bg-white shadow-md rounded-[34px] border border-gray-100 flex flex-col">
+              <div className="w-[1200px] h-[105vh]  flex flex-col">
                 {/* Header Section with Controls */}
-                <div className="p-2 border-b border-gray-200 flex justify-between items-center">
+                <div className="p-2  flex justify-end content-center items-center">
                   <div>
-                    <h1 className="text-[#CACACA] text-[40px] font-normal font-['Aeonik_TRIAL'] leading-[40px] break-words justify- text-center mb-2">
+                    <h1 className="text-[#CACACA] text-[40px] w-250 font-['Aeonik_TRIAL'] leading-[40px] break-words justify- text-center mb-2">
                        Stock Analyzer
+                     
                     </h1>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 justify-end">
                     <button 
                       onClick={clearChat}
                       className="p-2 text-gray-600 hover:text-red-600 transition-colors"
@@ -227,18 +231,24 @@ function TrendAnalyzer() {
                 {/* Chat Container */}
                 <div className="flex-1 p-6 overflow-y-auto">
                   <div className="space-y-4">
+                    
+
                     {messages.map((msg, index) => (
+                      
+                                             
                       <div 
                         key={`msg-${index}-${msg.timestamp}`} 
-                        className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex  items-start`}
                       >
+                        <div className='px-2 items-center justify-self-center'>  {msg.sender==='user'?<img src={person} alt="" className='w-[] h-11  bg-white rounded-[100%] justify-self-center'/>:<img src={AI_Avatar} alt="" className='w-[] h-11   justify-self-center' />} </div>
+                    
                         <div 
-                          className={`max-w-[80%] rounded-lg p-4 ${msg.sender === 'user' 
-                            ? 'bg-gradient-to-br from-[#4A25E1] to-[#7B5AFF] text-white rounded-br-none shadow-[0px_21px_27px_-10px_rgba(96,60,255,0.48)]' 
-                            : 'bg-gray-100 text-black rounded-bl-none'}`}
+                          className={` rounded-lg p-4 ${msg.sender === 'user' 
+                            ? 'bg-white max-w-[100%] text-black rounded' 
+                            : 'bg-white w-[100%]  text-black rounded'}`}
                         >
                           {msg.text.split('\n').map((paragraph, i) => (
-                            <p key={i} className="mb-2 last:mb-0">{paragraph}</p>
+                           <div className='flex'><p key={i} className="mb-2 last:mb-0">{paragraph}</p></div>
                           ))}
                         </div>
                       </div>
@@ -296,7 +306,7 @@ function TrendAnalyzer() {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-6 border-t border-gray-200">
+                <div className=" border-t border-gray-200">
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="flex gap-4">
                       <input
@@ -315,15 +325,16 @@ function TrendAnalyzer() {
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
+        
                     </div>
                     <button 
                       type="submit" 
                       className="w-full h-[50px] bg-gradient-to-br from-[#4A25E1] to-[#7B5AFF] rounded-[45px] shadow-[0px_21px_27px_-10px_rgba(96,60,255,0.48)] flex justify-center items-center text-white text-sm font-normal font-['Aeonik_TRIAL'] leading-4 hover:opacity-90 transition-opacity"
                       disabled={isLoading || !ticker.trim()}
                     >
-                      {isLoading ? (
+                                 {isLoading ? (
                         <div className="flex items-center">
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin -ml-1 mr-2 h-[px] w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
@@ -331,6 +342,7 @@ function TrendAnalyzer() {
                         </div>
                       ) : 'Analyze Stock'}
                     </button>
+           
                   </form>
                 </div>
               </div>
@@ -341,9 +353,13 @@ function TrendAnalyzer() {
 
       {/* Maximized View */}
       {isMaximized && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h1 className="text-2xl font-semibold">Stock Analyzer - Full Screen Mode</h1>
+        <div className="fixed inset-0 z-50 bg-gray-100 flex flex-col">
+          <div className="p-4  flex justify-between items-center">
+            <div></div>
+          <h1 className="text-[#CACACA] text-[40px] w-250 font-['Aeonik_TRIAL'] leading-[40px] break-words items-center  text-center mb-2">
+                       Stock Analyzer
+                     
+                    </h1>
             <div className="flex gap-2">
               <button 
                 onClick={clearChat}
@@ -364,15 +380,20 @@ function TrendAnalyzer() {
 
           <div className="flex-1 p-6 overflow-y-auto">
             <div className="space-y-4">
+              
               {messages.map((msg, index) => (
                 <div 
                   key={`msg-${index}-${msg.timestamp}`} 
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex items-start`}
                 >
+                     {msg.sender==='user'?<img src={person} alt="" className='w-[] h-12 px-2 justify-self-center'/>:<img src={AI_Avatar} alt="" className='w-[] h-12  px-2 justify-self-center' />} 
                   <div 
-                    className={`max-w-[80%] rounded-lg p-4 ${msg.sender === 'user' 
-                      ? 'bg-gradient-to-br from-[#4A25E1] to-[#7B5AFF] text-white rounded-br-none shadow-[0px_21px_27px_-10px_rgba(96,60,255,0.48)]' 
-                      : 'bg-gray-100 text-black rounded-bl-none'}`}
+                    // className={` rounded-lg p-4 ${msg.sender === 'user' 
+                    //   ? 'bg-gradient-to-br from-[#4A25E1] to-[#7B5AFF] text-white rounded-br-none shadow-[0px_21px_27px_-10px_rgba(96,60,255,0.48)]' 
+                    //   : 'bg-gray-100 text-black rounded-bl-none'}`}
+                    className={` rounded-lg p-4 ${msg.sender === 'user' 
+                    ? 'bg-white max-w-[100%] text-black rounded' 
+                    : 'bg-white w-[100%] text-black rounded'}`}
                   >
                     {msg.text.split('\n').map((paragraph, i) => (
                       <p key={i} className="mb-2 last:mb-0">{paragraph}</p>
@@ -392,8 +413,8 @@ function TrendAnalyzer() {
                       </span>
                     </h3>
                     
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                      <div className="bg-white p-4 border border-gray-200 rounded-lg h-[px]">
+                    <div className="py-2">
+                      <div className="bg-white p-4 border border-gray-200 rounded-lg h-[px] ">
                         <h4 className="font-medium mb-2">Price Chart</h4>
                         {renderChart(currentCharts.priceChart, `${currentCharts.ticker} Price`, 'price')}
                       </div>
@@ -403,7 +424,7 @@ function TrendAnalyzer() {
                         {renderChart(currentCharts.rsiChart, `${currentCharts.ticker} RSI`, 'rsi')}
                       </div>
                       
-                      <div className="bg-white p-4 border border-gray-200 rounded-lg xl:col-span-2 h-[px]">
+                      <div className="bg-white p-4 border border-gray-200 rounded-lg  h-[px]">
                         <h4 className="font-medium mb-2">MACD Chart</h4>
                         {renderChart(currentCharts.macdChart, `${currentCharts.ticker} MACD`, 'macd')}
                       </div>
