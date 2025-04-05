@@ -8,6 +8,11 @@ import { useTranslationContext } from '../context/TranslationContext';
 import { translateText } from '../services/translationService';
 import { Chatbot } from "./ChatBot";
 
+import home from '../assets/home.jpg'
+
+
+
+
 export function Dashboard() {
   const navigate = useNavigate();
   const { t, language } = useTranslationContext();
@@ -234,7 +239,11 @@ export function Dashboard() {
   return (
     <div className="w-full">
       <Navbar />
-      <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
+      <DashboardLayout
+  activeSection={activeSection}
+  setActiveSection={setActiveSection}
+  
+>
         <div className="bg-gray-100 p-6 min-h-screen w-full flex flex-col">
           <div className="flex flex-col flex-1 gap-6" style={{ minHeight: 0 }}>
             
@@ -421,7 +430,7 @@ export function Dashboard() {
           </div>
         </div>
       </DashboardLayout>
-      <Chatbot></Chatbot>
+      <Chatbot/>
     </div>
   );
 };

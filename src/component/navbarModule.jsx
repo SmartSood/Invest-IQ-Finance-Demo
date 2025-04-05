@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {SlideSensex} from './SlideSensex'
 import TranslatorText from './Text'
+import bar from '../assets/bar.jpg'
 const Navbar = () => {
   const  navigate=useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,6 +28,11 @@ const Navbar = () => {
       <button onClick={toggleMenu}>
         <i className={`fas ${menuOpen ? "fa-times" : "fa-bars"} text-xl`}></i>
       </button>
+      <img 
+            src={bar} 
+            alt="InvestIQ logo" 
+            className="ml-2 h-6 w-auto" 
+          />
       <span className="ml-2 text-2xl font-bold" onClick={()=>{navigate("/")}}>InvestIQ</span>
     </div>
     <div className="flex items-center space-x-4">

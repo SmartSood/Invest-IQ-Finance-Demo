@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import { useTranslationContext } from '../context/TranslationContext';
+
 
 const DropdownArrow = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
@@ -52,14 +52,14 @@ const Navbar = () => {
   }, [language, t]);
 
   const handleContactClick = () => {
-    navigate('/contact'); // NEW: Navigation to contact page
+    navigate('/contact');
   };
 
   const handlePoliciesClick = () => {
-    navigate('/policies'); // NEW: Navigation to contact page
+    navigate('/policies');
   };
   const handleAboutClick = () => {
-    navigate('/about'); // NEW: Navigation to contact page
+    navigate('/about');
   };
 
   const handleMouseEnter = (setOpen, closeOther) => {
@@ -243,19 +243,19 @@ const Navbar = () => {
         </div>
 
         <button 
-          onClick={handleAboutClick} // CHANGED: Changed from <a> to <button> with onClick
+          onClick={handleAboutClick}
           className="hover:text-gray-500"
         >
           {translatedContent.about}
         </button>
         <button 
-          onClick={handleContactClick} // CHANGED: Changed from <a> to <button> with onClick
+          onClick={handleContactClick}
           className="hover:text-gray-500"
         >
           {translatedContent.contact}
         </button>
         <button 
-          onClick={handlePoliciesClick} // CHANGED: Changed from <a> to <button> with onClick
+          onClick={handlePoliciesClick}
           className="hover:text-gray-500"
         >
           {translatedContent.policies}

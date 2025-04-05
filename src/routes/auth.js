@@ -1,47 +1,77 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../../models/user.js"; // Ensure correct path and use .js extension
-const SECRET_KEY="e fv vdn vnd mnd "
+import { OAuth2Client } from 'google-auth-library';
+import User from "../../models/user.js";
+
 const router = express.Router();
 
-// **Signup Route**
-router.post("/signup", async (req, res) => {
-  const { fullname, email, password } = req.body;
+// Configuration constants
+const SECRET_KEY = "e fv vdn vnd mnd ";
+const GOOGLE_CLIENT_ID = "790044347115-upsm6gepgaspldpr9ubkvvub12l8fflt.apps.googleusercontent.com";
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-  if (!fullname || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
-  // Validate email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
-  }
-
-  // Validate password (min 6 characters)
-  if (password.length < 6) {
-    return res.status(400).json({ message: "Password must be at least 6 characters" });
-  }
-
+router.post("/google", async (req, res) => {
   try {
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: "Email already exists" });
+    const { credential } = req.body;
+    
+    if (!credential) {
+      return res.status(400).json({ message: "No credential provided" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user = new User({ fullname, email, password: hashedPassword });
-    await user.save();
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID
+    });
 
-    const token = jwt.sign({ userId: user._id }, SECRET_KEY, { expiresIn: "1h" });
+    const payload = ticket.getPayload();
+    
+    if (!payload.email_verified) {
+      return res.status(400).json({ message: "Google email not verified" });
+    }
 
-    res.status(201).json({ message: "User registered successfully", token });
+    const { email, name, picture } = payload;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({
+        email,
+        fullname: name,
+        googleId: payload.sub,
+        picture,
+        isGoogleAuth: true
+      });
+      await user.save();
+    }
+
+    const token = jwt.sign(
+      { 
+        userId: user._id,
+        email: user.email,
+        name: user.fullname,
+        picture: user.picture
+      }, 
+      SECRET_KEY, 
+      { expiresIn: "1h" }
+    );
+
+    res.json({ 
+      message: "Google login successful", 
+      token,
+      user: {
+        email: user.email,
+        name: user.fullname,
+        picture: user.picture
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Google auth error:", error);
+    res.status(500).json({ 
+      message: "Google authentication failed",
+      error: error.message 
+    });
   }
 });
-
 // **Login Route**
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;

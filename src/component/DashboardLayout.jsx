@@ -2,6 +2,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Translatortext from './Text'
+import home from '../assets/home.jpg'
+import Learning from '../assets/Learning.jpg';
+import Analysis from '../assets/Analysis.jpg';
 export default function  DashboardLayout({ children, activeSection, setActiveSection }) {
   const navigate = useNavigate();
 
@@ -38,7 +41,13 @@ export default function  DashboardLayout({ children, activeSection, setActiveSec
                 }}
                 style={activeSection === "Dashboard" ? activeItemStyle : navItemStyle}
               >
-             <Translatortext>Dashboard</Translatortext>  
+                
+                <div className="flex items-center space-x-2">
+    <img src={home} alt="Home Icon" className="w-6 h-6" />
+    <span style={activeSection === "Dashboard" ? activeItemStyle : navItemStyle}>
+      <Translatortext>Dashboard</Translatortext>
+    </span>
+  </div>
               </li>
               <li
                 className="p-2 rounded-xl cursor-pointer hover:bg-gray-100"
@@ -48,7 +57,12 @@ export default function  DashboardLayout({ children, activeSection, setActiveSec
                 }}
                 style={activeSection === "Learning Hub" ? activeItemStyle : navItemStyle}
               >
-          <Translatortext> Learning Hub</Translatortext>     
+          <div className="flex items-center space-x-2">
+    <img src={Learning} alt="Learning Icon" className="w-6 h-6" />
+    <span style={activeSection === "Learning Hub" ? activeItemStyle : navItemStyle}>
+      <Translatortext>Learning Hub</Translatortext>
+    </span>
+  </div>    
               </li>
               <li
                 className="p-2 rounded-xl cursor-pointer hover:bg-gray-100"
@@ -58,7 +72,12 @@ export default function  DashboardLayout({ children, activeSection, setActiveSec
                 }}
                 style={activeSection === "Analysis" ? activeItemStyle : navItemStyle}
               >
-               <Translatortext> Analysis</Translatortext>
+               <div className="flex items-center space-x-2">
+    <img src={Analysis} alt="Analysis Icon" className="w-6 h-6" />
+    <span style={activeSection === "Analysis" ? activeItemStyle : navItemStyle}>
+      <Translatortext>Analysis</Translatortext>
+    </span>
+  </div>    
               </li>
             </ul>
           </nav>
