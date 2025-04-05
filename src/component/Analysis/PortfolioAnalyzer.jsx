@@ -489,7 +489,7 @@ const FinancialAdvisor = () => {
   );
 
   return (
-    <div className="  relative  h-[80vh] overflow-hidden">
+    <div className="  relative  h-[630px] overflow-hidden">
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1180px] h-[80vh] bg-gray-100 shadow-md rounded-[34px] border border-gray-100 flex flex-col">
         {/* Header Section */}
         <div >
