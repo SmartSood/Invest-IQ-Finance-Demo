@@ -150,11 +150,11 @@ export function Card1() {
         <div className="flex gap-10">
           <div className="text-center">
             <h3 className="text-[48px] leading-[56px] font-[Aeonik TRIAL] text-black"><TranslatorText>20+</TranslatorText></h3>
-            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Comprehensive <br />Financial Courses</TranslatorText></p>
+            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Comprehensive </TranslatorText> <br /><TranslatorText>Financial Courses</TranslatorText></p>
           </div>
           <div className="text-center">
             <h3 className="text-[48px] leading-[56px] font-[Aeonik TRIAL] text-black">4K+</h3>
-            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Learners Growing Their <br />Wealth With Us</TranslatorText></p>
+            <p className="text-[16px] font-[Aeonik TRIAL] leading-[24px] text-[#667085]"><TranslatorText>Learners Growing Their </TranslatorText> <br /><TranslatorText>Wealth With Us</TranslatorText></p>
           </div>
         </div>
       </div>
