@@ -98,7 +98,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center w-full max-w-[px] mx-auto">
+    <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center w-full max-w-screen mx-auto">
       <div className="text-black text-xl font-bold">InvestIQ</div>
       <div className="hidden md:flex space-x-6">
         <div 

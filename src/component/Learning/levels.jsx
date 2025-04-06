@@ -113,9 +113,9 @@ export function LevelApp() {
     }, [loading, error, getEmbedUrl, navigate, t]);
 
     return (
-        <div className="flex flex-col min-h-screen overflow-x-hidden">
+        <div className="flex flex-col min-h-screen overflow-x-hidden overflow-y-auto">
             <Navbar />
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1  overflow-y-auto">
                 <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
                     <div className="text-justify mx-auto p-5 overflow-hidden">
                         <Level levelData={levelData} />

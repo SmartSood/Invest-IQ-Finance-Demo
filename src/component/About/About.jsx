@@ -3,105 +3,240 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import TranslatorText from '../Text';
 import { FooterPage } from '../LearningEnd';
 import Navbar from '../navbar';
-
+import Card2 from '../../../public/Card2.jpeg'
+import Card from '../../assets/Card.svg'
+import { useNavigate } from 'react-router-dom';
 const About = () => {
   const { t } = useTranslationContext();
-
+  const Navigate=useNavigate();
+  function submitRating(){
+    alert("Rating Submitted")
+  }
   return (
     <>
       <Navbar />
       
-      <div className="bg-gray-50 min-h-screen py-10 px-4">
+      <div className="bg-gray-50  min-h-screen  ">
+
+
+
+    
+
         {/* Hero Section with Stat Card */}
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 items-center mb-16">
-          {/* Left Column - Text Content */}
-          <div className="md:w-1/2">
-            <h1 className="text-4xl font-bold text-[#0C0D0E] mb-6">
-              {t('About Our Company')}
-            </h1>
-            <p className="text-[#667085] text-lg mb-8">
-              {t('We are a leading provider of innovative solutions with a track record of success. Our team of experts delivers exceptional results for clients worldwide.')}
-            </p>
-            <button className="bg-[#0C0D0E] text-white py-3 px-8 rounded-3xl hover:bg-gray-800 transition-colors">
-              {t('Learn More')}
-            </button>
+      {/* Left Column - Text Content */}
+        <div className="w-[1455px] h-screen mx-auto flex  gap-[30px] ">
+    {/* first column */}
+          <div className='justify-end items-end pl-[108px] h-screen w-[408px]'>
+            <div className='h-[129px]'></div>
+         <div><img src={Card2} alt="" className='h-[378px] w-[300px] rounded-[10px] '/></div>   
+
+        <div className='p-[30px]'></div>
+
+            
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-xs">
+        <h2 class="text-lg font-semibold mb-2">Best ratings</h2>
+        <div class="space-y-2 mb-4">
+            <div class="h-2 bg-gray-200 rounded-full w-3/4"></div>
+            <div class="h-2 bg-gray-200 rounded-full w-1/2"></div>
+        </div>
+        <div class="flex justify-between">
+            <span class="emoji text-3xl  cursor-pointer" onclick="submitRating()">😡</span>
+            <span class="emoji text-3xl cursor-pointer" onclick="submitRating()">😟</span>
+            <span class="emoji text-3xl cursor-pointer" onclick="submitRating()">😐</span>
+            <span class="emoji text-3xl cursor-pointer" onclick="submitRating()">😜</span>
+            <span class="emoji text-3xl cursor-pointer" onclick="submitRating()">😁</span>
+        </div>
+    </div>
           </div>
+{/* secondCoulmn */}
+<div className='w-[300px]'>
+    <div className='h-[64px]'></div>
+    <div className='h-[px]'><img src={Card} alt="" className='h-[px]'/></div>
+    <div className='h-[30px]'></div>
+    <div><img src={Card2} alt="" className='h-[378px] w-[300px] rounded-[10px] '/></div>   
+
+
+</div>
+{/* third column */}
+<div className='p-[52px]' >
+  <div className='h-[119px]'></div>
+
+<div class="bg-white rounded-lg shadow-lg p-8 h-[411px] w-[512px] mx-auto">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">About Us</h1>
+        <p class="text-gray-600 mb-6">
+        Welcome to our platform - your go-to destination for free and accessible finance education. We offer in-depth analysis, personalized insights, and an engaging interface to make financial learning easy and enjoyable. With powerful tools like our portfolio analyzer and an AI-driven trend analyzer chatbot, we help you track your investments and stay ahead of market trends. Whether you're a beginner or a pro, we're here to support your financial journey every step of the way.
+        </p>
+        
+        <button class="bg-black text-white mt-[45px] py-2 px-6 rounded-full flex items-center  hover:bg-gray-500" onClick={()=>{
+          Navigate("/login/dashboard")
+        }}>
+            Explore More <span class="ml-2">→</span>
+        </button>
+    </div>
+
+        </div>
           
-          {/* Right Column - Stat Card */}
-          <div className="md:w-1/2 flex justify-center">
-            {/* Exact stat card from screenshot */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 w-full max-w-[320px]">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">30,000+</h2>
-              <p className="text-gray-600 text-sm mb-3">
-                {t('Sales in July 2021 with 5 star ratings')}
-              </p>
-              <div className="flex mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className="w-5 h-5 text-yellow-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <p className="text-gray-600 text-sm mb-4">
-                {t('and happy clients.')}
-              </p>
-              <div className="border-t border-gray-100 pt-3">
-                <p className="text-gray-900 font-medium text-sm">
-                  {t('Best ratings')}
-                </p>
-              </div>
-            </div>
-          </div>
+
         </div>
 
-        {/* Team Section */}
-        <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-md mb-16">
-          <div className="text-center mb-10">
-            <h3 className="text-2xl font-bold text-[#0C0D0E] mb-4">
-              {t('Our Team')}
-            </h3>
-            <p className="text-[#667085] max-w-2xl mx-auto">
-              {t('Meet our dedicated team of professionals committed to delivering excellence.')}
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="bg-gray-50 p-6 rounded-lg hover:shadow-md transition-shadow">
-                <div className="w-full h-48 bg-gray-200 rounded-lg mb-4 overflow-hidden flex items-center justify-center">
-                  <svg className="w-20 h-20 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <h4 className="text-xl font-semibold text-[#0C0D0E] mb-2">
-                  {t(`Team Member ${item}`)}
-                </h4>
-                <p className="text-[#667085]">
-                  {t('Professional Title')}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+      
+
+
+
+
+{/* Team Section */}
+
+
+        <div class="container mx-auto px-[] py-12">
+   <h1 class="text-5xl font-bold mb-4 ">
+    Our Team
+   </h1>
+   <p class="mb-12 text-gray-600 ">
+    Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+   </p>
+
+
+   {/* cards */}
+   <div class="flex flex-wrap  justify-left gap-[32px]">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-[624px]">
+     <div class="mb-4">
+      <img alt="Profile picture of Bonnie Green" class="rounded-full mx-auto" height="100" src="https://storage.googleapis.com/a1aa/image/f1OJaWCzzXeoAbSNEr7GiZCdUhbow2qTU9tZ8Pkiz1c.jpg" width="100"/>
+     </div>
+     <h2 class="text-xl font-bold mb-2">
+      Bonnie Green
+     </h2>
+     <p class="text-gray-600 mb-4">
+      Senior Front-end Developer
+     </p>
+     <p class="text-gray-600 mb-4">
+      Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+     </p>
+     <div class="flex justify-center space-x-4">
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-facebook">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-twitter">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-globe">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-github">
+       </i>
+      </a>
+     </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-lg p-6 w-[624px]">
+     <div class="mb-4">
+      <img alt="Profile picture of Thomas Lean" class="rounded-full mx-auto" height="100" src="https://storage.googleapis.com/a1aa/image/iyAwsk8R19UGXEE0B-Nfawn1gZ1eZO6F3ziONfUyBLA.jpg" width="100"/>
+     </div>
+     <h2 class="text-xl font-bold mb-2">
+      Thomas Lean
+     </h2>
+     <p class="text-gray-600 mb-4">
+      Senior Front-end Developer
+     </p>
+     <p class="text-gray-600 mb-4">
+      Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+     </p>
+     <div class="flex justify-center space-x-4">
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-facebook">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-twitter">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-globe">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-github">
+       </i>
+      </a>
+     </div>
+    </div>
+   </div>
+    <div className='h-[64px]'></div>
+   <div class="flex flex-wrap  justify-left gap-[32px]">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-[624px]">
+     <div class="mb-4">
+      <img alt="Profile picture of Bonnie Green" class="rounded-full mx-auto" height="100" src="https://storage.googleapis.com/a1aa/image/f1OJaWCzzXeoAbSNEr7GiZCdUhbow2qTU9tZ8Pkiz1c.jpg" width="100"/>
+     </div>
+     <h2 class="text-xl font-bold mb-2">
+      Bonnie Green
+     </h2>
+     <p class="text-gray-600 mb-4">
+      Senior Front-end Developer
+     </p>
+     <p class="text-gray-600 mb-4">
+      Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+     </p>
+     <div class="flex justify-center space-x-4">
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-facebook">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-twitter">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-globe">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-github">
+       </i>
+      </a>
+     </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-lg p-6 w-[624px]">
+     <div class="mb-4">
+      <img alt="Profile picture of Thomas Lean" class="rounded-full mx-auto" height="100" src="https://storage.googleapis.com/a1aa/image/iyAwsk8R19UGXEE0B-Nfawn1gZ1eZO6F3ziONfUyBLA.jpg" width="100"/>
+     </div>
+     <h2 class="text-xl font-bold mb-2">
+      Thomas Lean
+     </h2>
+     <p class="text-gray-600 mb-4">
+      Senior Front-end Developer
+     </p>
+     <p class="text-gray-600 mb-4">
+      Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+     </p>
+     <div class="flex justify-center space-x-4">
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-facebook">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-twitter">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-globe">
+       </i>
+      </a>
+      <a class="text-gray-600 hover:text-gray-900" href="#">
+       <i class="fab fa-github">
+       </i>
+      </a>
+     </div>
+    </div>
+   </div>
+  </div>
+ 
+
+
 
         {/* Additional Stats Section */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          {[
-            { value: '10+', label: t('Years Experience') },
-            { value: '500+', label: t('Projects Completed') },
-            { value: '100%', label: t('Client Satisfaction') }
-          ].map((stat, index) => (
-            <div key={index} className="bg-white p-8 rounded-lg shadow-sm text-center">
-              <h3 className="text-4xl font-bold text-[#0C0D0E] mb-2">{stat.value}</h3>
-              <p className="text-[#667085]">{stat.label}</p>
-            </div>
-          ))}
-        </div>
+
       </div>
       
       <FooterPage />
