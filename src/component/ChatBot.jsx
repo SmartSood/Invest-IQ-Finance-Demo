@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faCommentDots, faPaperPlane, faSpinner, 
   faMicrophone, faMicrophoneSlash, faTimes, 
-  faExpand, faCompress, faLanguage 
+  faExpand, faCompress, faLanguage,
+  faVolumeUp, faVolumeMute
 } from '@fortawesome/free-solid-svg-icons';
 import { Client } from "@gradio/client";
 import { useTranslationContext } from '../context/TranslationContext';
@@ -12,6 +12,7 @@ import { translateText } from '../services/translationService';
 
 const GOOGLE_API_KEY = "AIzaSyAAvV790SgykzvhGIvBoqYYRh3rwoip_2Q";
 const SPEECH_API_URL = "https://speech.googleapis.com/v1/speech:recognize";
+const TEXT_TO_SPEECH_API_URL = "https://texttospeech.googleapis.com/v1/text:synthesize";
 
 // Language code mapping for speech recognition
 const getSpeechRecognitionLanguageCode = (appLanguage) => {
@@ -26,9 +27,25 @@ const getSpeechRecognitionLanguageCode = (appLanguage) => {
     'ar': 'ar-SA',
     'ru': 'ru-RU',
     'pt': 'pt-PT',
-    // Add more language mappings as needed
   };
   return languageMap[appLanguage] || 'en-US';
+};
+
+// Get text-to-speech voice parameters
+const getVoiceParams = (lang) => {
+  const voiceMap = {
+    'en': { languageCode: 'en-US', name: 'en-US-Wavenet-D' },
+    'hi': { languageCode: 'hi-IN', name: 'hi-IN-Wavenet-A' },
+    'es': { languageCode: 'es-ES', name: 'es-ES-Wavenet-B' },
+    'fr': { languageCode: 'fr-FR', name: 'fr-FR-Wavenet-B' },
+    'de': { languageCode: 'de-DE', name: 'de-DE-Wavenet-B' },
+    'ja': { languageCode: 'ja-JP', name: 'ja-JP-Wavenet-B' },
+    'zh': { languageCode: 'cmn-CN', name: 'cmn-CN-Wavenet-C' },
+    'ar': { languageCode: 'ar-XA', name: 'ar-XA-Wavenet-B' },
+    'ru': { languageCode: 'ru-RU', name: 'ru-RU-Wavenet-B' },
+    'pt': { languageCode: 'pt-PT', name: 'pt-PT-Wavenet-B' },
+  };
+  return voiceMap[lang] || voiceMap['en'];
 };
 
 export function Chatbot() {
@@ -40,7 +57,10 @@ export function Chatbot() {
     const [client, setClient] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isListening, setIsListening] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [currentSpeakingId, setCurrentSpeakingId] = useState(null);
     
+    const audioRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
     const streamRef = useRef(null);
@@ -82,8 +102,81 @@ export function Chatbot() {
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(track => track.stop());
             }
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
         };
     }, [isOpen, t]);
+
+    // Text-to-speech function
+    const speakText = async (text, messageId) => {
+        if (isSpeaking && audioRef.current) {
+            audioRef.current.pause();
+            setIsSpeaking(false);
+            setCurrentSpeakingId(null);
+            return;
+        }
+
+        try {
+            setIsSpeaking(true);
+            setCurrentSpeakingId(messageId);
+            
+            const voiceParams = getVoiceParams(currentAppLanguage);
+            
+            const response = await fetch(`${TEXT_TO_SPEECH_API_URL}?key=${GOOGLE_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    input: { text },
+                    voice: voiceParams,
+                    audioConfig: { 
+                        audioEncoding: 'MP3',
+                        speakingRate: 1.0,
+                        pitch: 0,
+                        volumeGainDb: 0
+                    }
+                })
+            });
+
+            const data = await response.json();
+            if (data.audioContent) {
+                const audioBlob = base64ToBlob(data.audioContent, 'audio/mp3');
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                }
+                
+                audioRef.current = new Audio(audioUrl);
+                audioRef.current.play();
+                
+                audioRef.current.onended = () => {
+                    setIsSpeaking(false);
+                    setCurrentSpeakingId(null);
+                };
+                
+                audioRef.current.onerror = () => {
+                    setIsSpeaking(false);
+                    setCurrentSpeakingId(null);
+                };
+            }
+        } catch (error) {
+            console.error("Text-to-speech error:", error);
+            setIsSpeaking(false);
+            setCurrentSpeakingId(null);
+        }
+    };
+
+    const base64ToBlob = (base64, mimeType) => {
+        const byteCharacters = atob(base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        return new Blob([byteArray], { type: mimeType });
+    };
 
     // Voice recording functions
     const startListening = async () => {
@@ -161,7 +254,6 @@ export function Chatbot() {
                 reader.readAsDataURL(audioBlob);
             });
 
-            // Use appropriate language code for speech recognition
             const recognitionLang = getSpeechRecognitionLanguageCode(currentAppLanguage);
             
             const response = await fetch(`${SPEECH_API_URL}?key=${GOOGLE_API_KEY}`, {
@@ -213,7 +305,6 @@ export function Chatbot() {
                 return acc;
             }, []);
     
-            // Translate input to English if needed
             let englishInput = input;
             if (currentAppLanguage !== 'en') {
                 try {
@@ -229,13 +320,10 @@ export function Chatbot() {
                 history: history
             });
     
-            // Improved response extraction
             let chatbotResponse = "";
             if (Array.isArray(response?.data)) {
-                // Handle different response formats
                 const responseData = response.data[0];
                 if (Array.isArray(responseData)) {
-                    // First try to get the actual response text
                     chatbotResponse = responseData[1]?.[1] || 
                                     responseData[0]?.[1] || 
                                     responseData[1] || 
@@ -248,12 +336,10 @@ export function Chatbot() {
                 chatbotResponse = response.data;
             }
     
-            // Remove any trailing zeros that might be added
             if (typeof chatbotResponse === 'string') {
                 chatbotResponse = chatbotResponse.replace(/0+$/, '').trim();
             }
     
-            // Translate response back to user's language if needed
             let translatedResponse = chatbotResponse;
             if (currentAppLanguage !== 'en' && chatbotResponse) {
                 try {
@@ -278,6 +364,7 @@ export function Chatbot() {
             setIsLoading(false);
         }
     };
+
     const formatResponse = (text) => {
         if (!text) return t("No response received");
         
@@ -296,7 +383,7 @@ export function Chatbot() {
         }]);
     };
 
-    const FormattedMessage = ({ text }) => (
+    const FormattedMessage = ({ text, sender, id }) => (
         <div className="whitespace-pre-wrap">
             {text.split(/\*\*(.*?)\*\*/).map((part, i) => (
                 <span key={i} className={i % 2 ? "font-semibold" : ""}>
@@ -304,6 +391,18 @@ export function Chatbot() {
                     {i % 2 && <br />}
                 </span>
             ))}
+            {sender === 'bot' && (
+                <button 
+                    onClick={() => speakText(text, id)}
+                    className={`mt-1 ml-1 p-1 rounded-full ${currentSpeakingId === id ? 'bg-purple-100 text-purple-600' : 'text-gray-500 hover:text-purple-600'}`}
+                    aria-label={isSpeaking && currentSpeakingId === id ? t("Stop speaking") : t("Read aloud")}
+                >
+                    <FontAwesomeIcon 
+                        icon={isSpeaking && currentSpeakingId === id ? faVolumeMute : faVolumeUp} 
+                        className="text-sm"
+                    />
+                </button>
+            )}
         </div>
     );
 
@@ -354,7 +453,7 @@ export function Chatbot() {
                         <div key={i} className={`mb-3 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
                             <div className={`inline-block px-3 py-2 rounded-lg max-w-[85%] ${
                                 msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
-                                <FormattedMessage text={msg.text} />
+                                <FormattedMessage text={msg.text} sender={msg.sender} id={i} />
                             </div>
                         </div>
                     )) : (

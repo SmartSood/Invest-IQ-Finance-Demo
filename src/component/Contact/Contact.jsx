@@ -58,7 +58,7 @@ export function Contact() {
                   <p className="text-gray-400">
                     <TranslatorText>Email</TranslatorText>
                   </p>
-                  <p className="text-white font-medium">pratham22012004@gmail.com</p>
+                  <p className="text-white font-medium">investiqxvnsxdevs@gmail.com</p>
                 </div>
               </div>
 
@@ -153,7 +153,7 @@ export function Contact() {
                   <input
                     type="tel"
                     className="w-full px-4 py-3 border-b border-[#E8E8E8] focus:outline-none focus:border-[#0C0D0E]"
-                    placeholder="+1 012 3456 789"
+                    placeholder="+91 012 3456 789"
                     required
                   />
                 </div>

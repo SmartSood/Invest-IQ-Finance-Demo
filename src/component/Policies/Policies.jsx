@@ -11,33 +11,37 @@ export function Policies() {
     {
       title: "Privacy Policy",
       content: [
-        "We are committed to protecting your privacy. This policy outlines how we collect, use, and safeguard your personal information when you use our services.",
-        "We collect information you provide directly, such as when you create an account, complete a form, or contact us. This may include your name, email address, and other contact details.",
-        "We use this information to provide and improve our services, communicate with you, and for security and fraud prevention purposes."
+        "InvestIQ is committed to protecting your personal and financial information in compliance with SEBI's data protection guidelines. This policy explains how we collect, use, and safeguard your data when you use our financial education platform and analytical tools.",
+        "We collect information you provide when creating an account or using our analytical features (portfolio analyzer and trend analyzer). This may include your name, email, and limited investment data for educational analysis purposes only.",
+        "In accordance with SEBI guidelines, all financial data processed by our tools is encrypted and anonymized where possible. We never store sensitive credentials or complete account information.",
+        "We implement security measures that exceed basic SEBI requirements, including end-to-end encryption, regular vulnerability assessments, and strict access controls to protect your information."
       ]
     },
     {
-      title: "Privacy Policy",
+      title: "Terms of Service",
       content: [
-        "By accessing or using our services, you agree to be bound by these terms. If you disagree with any part, you may not access the service.",
-        "Our services are provided 'as is' without warranties of any kind. We are not liable for any damages resulting from your use of the service.",
-        "We reserve the right to modify or terminate the service for any reason without notice at any time."
+        "By accessing InvestIQ's platform, you acknowledge that our content is for educational purposes only and does not constitute investment advice as defined by SEBI (Securities and Exchange Board of India) regulations.",
+        "Our portfolio analyzer and trend analyzer tools provide generic educational insights based on SEBI-approved methodologies. These tools offer suggestions and hypothetical scenarios, not guaranteed results or accurate predictions of market behavior.",
+        "Important: The outputs from our chatbots should be treated as educational advice only. The portfolio analyzer provides allocation suggestions, not definitive portfolio recommendations. The trend analyzer offers perspective on market patterns, not precise forecasts.",
+        "You must be at least 18 years old to use our services. You agree to comply with all applicable SEBI regulations when using our analytical tools and not to use them for any illegal or manipulative market activities."
       ]
     },
     {
-      title: "Privacy Policy",
+      title: "Tool Limitations",
       content: [
-        "We use cookies and similar tracking technologies to track activity on our service and hold certain information.",
-        "Cookies are files with small amounts of data which may include an anonymous unique identifier. They are sent to your browser from a website and stored on your device.",
-        "You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our service."
+        "InvestIQ's analytical tools (portfolio analyzer and trend analyzer) are designed for educational exploration only. They do not provide accurate or definitive investment outcomes.",
+        "The portfolio analyzer's suggestions are based on general principles of asset allocation and do not account for all individual circumstances or market conditions. Actual portfolio performance may vary significantly.",
+        "The trend analyzer identifies potential patterns for educational discussion, not for trading decisions. Market movements are complex and cannot be accurately predicted by our tool.",
+        "Users should understand that these tools provide illustrative examples only. We explicitly disclaim any accuracy or reliability in the outputs, as required by SEBI guidelines for educational platforms."
       ]
     },
     {
-      title: "Privacy Policy",
+      title: "Regulatory Compliance",
       content: [
-        "If you are not satisfied with our service, you may be eligible for a refund within 30 days of purchase.",
-        "To request a refund, please contact our support team with your order details and reason for the request.",
-        "Refunds will be processed within 7-10 business days and credited to your original payment method."
+        "InvestIQ operates as a financial education platform and not as a SEBI-registered investment advisor, portfolio manager, or research analyst. Our tools are designed for self-learning only.",
+        "We strictly adhere to SEBI's prohibition on guaranteeing returns or making predictive claims. All chatbot outputs include disclaimers stating they are for educational purposes only.",
+        "Our educational materials about market trends and portfolio analysis clearly state that they represent possible scenarios, not accurate predictions or results. Actual market behavior may differ substantially.",
+        "Users should be aware that SEBI requires verification of all investment advice. Since our chatbots provide educational suggestions only, users should consult SEBI-registered professionals before making actual investment decisions."
       ]
     }
   ];
