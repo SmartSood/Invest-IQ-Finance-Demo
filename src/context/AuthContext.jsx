@@ -29,8 +29,9 @@ export const AuthProvider = ({ children }) => {
     const decoded = jwtDecode(token);
     setUser({ 
       id: decoded.userId,
-      email: userData?.email,
-      ...userData
+      email: userData?.email || decoded.email,
+      name: userData?.name || decoded.name,
+      picture: userData?.picture || decoded.picture
     });
   };
 

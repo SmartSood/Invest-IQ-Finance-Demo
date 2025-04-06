@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import { useTranslationContext } from '../context/TranslationContext';
@@ -13,6 +13,51 @@ export function SignInPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  useEffect(() => {
+    // Load Google script
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    // Define global callback
+    window.handleGoogleSignIn = (response) => {
+      console.log('Google response:', response);
+      handleGoogleResponse(response.credential);
+    };
+
+    return () => {
+      document.body.removeChild(script);
+      delete window.handleGoogleSignIn;
+    };
+  }, []);
+
+  const handleGoogleResponse = async (credential) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const res = await fetch('https://invest-iq-finance-demo-1.onrender.com/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.message || "Google login failed");
+      
+      login(data.token, data.user);
+      navigate("/login/Dashboard");
+    } catch (err) {
+      setError(err.message || "Google authentication failed");
+      console.error('Google auth error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Add this function to handle Google response
 
   const handleSignIn = async () => {
     setLoading(true);
@@ -122,21 +167,23 @@ export function SignInPage() {
             <span className="px-3 text-gray-500 text-sm"><TranslatorText>OR</TranslatorText></span>
             <hr className="w-full border-gray-300" />
           </div>
-
-          <button
-            className="w-full flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200"
-            type="button"
-          >
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" 
-              className="mr-2" 
-              width="20" 
-              height="20" 
-              alt={t("Google Logo")} 
-            />
-            <TranslatorText>Sign In with Google</TranslatorText>
-          </button>
-
+          <div 
+  id="g_id_onload"
+  data-client_id="461007347625-l1nn6bsd0cerjad6j6g23qqnqatn1evf.apps.googleusercontent.com"
+  data-callback="handleGoogleSignIn"
+  data-context="signin"
+  data-ux_mode="popup"
+  data-login_uri="http://localhost:5001/api/auth/google" // For local testing
+></div>
+<div 
+  className="g_id_signin"
+  data-type="standard"
+  data-size="large"
+  data-theme="outline"
+  data-text="sign_in_with"
+  data-shape="rectangular"
+  data-logo_alignment="left"
+></div>
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">
               <TranslatorText>Don't have an account?</TranslatorText>{" "}
