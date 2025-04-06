@@ -5,8 +5,11 @@ import { useTranslationContext } from "../context/TranslationContext";
 import TranslatorText from "./Text";
 import img2landingpage from "../assets/img2landingpage.jpg"
 import img3landingpage from "../assets/img3landingpage.jpg"
+import { FaPause, FaPlay } from "react-icons/fa";
+
 export function Card2({ Card2img }) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
   
   const slides = [
     {
@@ -29,11 +32,23 @@ export function Card2({ Card2img }) {
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 3000);
+    let interval;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, 3000);
+    }
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [isPlaying, slides.length]);
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+    setIsPlaying(false); // Pause when manually selecting a slide
+  };
 
   return (
     <div className="w-3xl justify-self-end rounded-xl relative h-full">
@@ -52,12 +67,21 @@ export function Card2({ Card2img }) {
         ))}
       </div>
       
+      {/* Play/Pause button */}
+      <button 
+        onClick={togglePlayPause}
+        className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+        aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
+      >
+        {isPlaying ? <FaPause size={16} /> : <FaPlay size={16} />}
+      </button>
+      
       {/* Rectangular indicators at bottom left */}
       <div className="absolute bottom-4 left-4 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentSlide(index)}
+            onClick={() => goToSlide(index)}
             className={`w-6 h-2 rounded-sm transition-all duration-300 ${
               index === currentSlide ? 'bg-white' : 'bg-white/50'
             }`}
@@ -69,6 +93,7 @@ export function Card2({ Card2img }) {
   );
 }
 
+// Rest of your existing code remains exactly the same...
 export function Card1() {
   const {t} = useTranslationContext();
   const navigate = useNavigate();

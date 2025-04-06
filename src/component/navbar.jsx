@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import { useTranslationContext } from '../context/TranslationContext';
 
@@ -12,6 +12,7 @@ const DropdownArrow = () => (
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [featuresOpen, setFeaturesOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
@@ -97,6 +98,11 @@ const Navbar = () => {
     setLanguageOpen(false);
   };
 
+  // Helper function to check if current route is active
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
     <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center w-full max-w-[px] mx-auto">
       <div className="text-black text-xl font-bold">InvestIQ</div>
@@ -107,7 +113,7 @@ const Navbar = () => {
           onMouseLeave={() => delayedClose(setFeaturesOpen)}
         >
           <button className="flex items-center space-x-1 hover:text-gray-500">
-            <span>{translatedContent.features}</span> <DropdownArrow />
+            <span className={isActive('/login/analysis') || isActive('/login/Dashboard') ? "font-bold" : ""}>{translatedContent.features}</span> <DropdownArrow />
           </button>
           {featuresOpen && (
             <div 
@@ -116,10 +122,10 @@ const Navbar = () => {
               onMouseLeave={() => delayedClose(setFeaturesOpen)}
             >
               <ul className="py-2">
-                <li className="px-4 py-2 hover:bg-gray-100" onClick={handleGetStarted_Analysis}>
+                <li className={`px-4 py-2 hover:bg-gray-100 ${isActive('/login/analysis') ? "font-bold" : ""}`} onClick={handleGetStarted_Analysis}>
                   {translatedContent.analysis}
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100" onClick={handleGetStarted}>
+                <li className={`px-4 py-2 hover:bg-gray-100 ${isActive('/login/Dashboard') ? "font-bold" : ""}`} onClick={handleGetStarted}>
                   {translatedContent.education}
                 </li>
               </ul>
@@ -143,100 +149,95 @@ const Navbar = () => {
             >
               <ul className="py-2">
                 <li 
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'en' ? "font-bold" : ""}`} 
                   onClick={() => handleLanguageChange('en')}
                 >
                   English
                 </li>
                 <li 
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'es' ? "font-bold" : ""}`} 
                   onClick={() => handleLanguageChange('es')}
                 >
                   Español
                 </li>
                 <li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('fr')}
->
-  Français
-</li>
-
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('zh')}
->
-  中文 (Chinese)
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('ja')}
->
-  日本語 (Japanese)
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('ko')}
->
-  한국어 (Korean)
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('ru')}
->
-  Русский (Russian)
-</li>
-
-
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'fr' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('fr')}
+                >
+                  Français
+                </li>
                 <li 
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'zh' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('zh')}
+                >
+                  中文 (Chinese)
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'ja' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('ja')}
+                >
+                  日本語 (Japanese)
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'ko' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('ko')}
+                >
+                  한국어 (Korean)
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'ru' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('ru')}
+                >
+                  Русский (Russian)
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'hi' ? "font-bold" : ""}`} 
                   onClick={() => handleLanguageChange('hi')}
                 >
                   हिंदी
                 </li>
-
                 <li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('mr')}
->
-  मराठी
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('as')}
->
-  অসমীয়া
-</li>
-
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('ta')}
->
-  தமிழ்
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('te')}
->
-  తెలుగు
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('bn')}
->
-  বাংলা
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('gu')}
->
-  ગુજરાતી
-</li>
-<li 
-  className="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
-  onClick={() => handleLanguageChange('pa')}
->
-  ਪੰਜਾਬੀ
-</li>
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'mr' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('mr')}
+                >
+                  मराठी
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'as' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('as')}
+                >
+                  অসমীয়া
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'ta' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('ta')}
+                >
+                  தமிழ்
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'te' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('te')}
+                >
+                  తెలుగు
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'bn' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('bn')}
+                >
+                  বাংলা
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'gu' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('gu')}
+                >
+                  ગુજરાતી
+                </li>
+                <li 
+                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${language === 'pa' ? "font-bold" : ""}`} 
+                  onClick={() => handleLanguageChange('pa')}
+                >
+                  ਪੰਜਾਬੀ
+                </li>
               </ul>
             </div>
           )}
@@ -244,19 +245,19 @@ const Navbar = () => {
 
         <button 
           onClick={handleAboutClick}
-          className="hover:text-gray-500"
+          className={`hover:text-gray-500 ${isActive('/about') ? "font-bold" : ""}`}
         >
           {translatedContent.about}
         </button>
         <button 
           onClick={handleContactClick}
-          className="hover:text-gray-500"
+          className={`hover:text-gray-500 ${isActive('/contact') ? "font-bold" : ""}`}
         >
           {translatedContent.contact}
         </button>
         <button 
           onClick={handlePoliciesClick}
-          className="hover:text-gray-500"
+          className={`hover:text-gray-500 ${isActive('/policies') ? "font-bold" : ""}`}
         >
           {translatedContent.policies}
         </button>
