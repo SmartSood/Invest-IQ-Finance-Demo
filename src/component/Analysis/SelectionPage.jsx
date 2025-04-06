@@ -73,19 +73,6 @@ function SelectionPage() {
                     ))}
                 </div>
 
-                {/* Smaller buttons with proper spacing */}
-                <div className="flex justify-end mt-8">
-                    <div 
-                        className={`max-w-[180px] py-3 px-6 shadow-md rounded-[56px] flex justify-end items-center gap-2 bg-black hover:bg-gray-600 cursor-pointer transition-all duration-300`}
-                        onClick={selectedOption !== null ? handleNext : undefined}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                    >
-                        <div className="text-center text-white text-base font-normal font-['Aeonik_TRIAL'] leading-5">
-                            <TranslatorText>Next step</TranslatorText>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     );

@@ -117,7 +117,7 @@ export function Card1() {
             className="flex h-[56px] px-[24px] py-[12px] justify-center items-center gap-[8px] font-[Aeonik TRIAL] rounded-full border border-[#E8E8E8] bg-[#F4F4F4] text-[#0C0D0E] text-[16px] leading-[24px] hover:bg-gray-400" 
             onClick={handleGetStarted_Analysis}
           >
-            <TranslatorText>Analysis Portfolio</TranslatorText>  
+            <TranslatorText>Analyse Your Portfolio</TranslatorText>  
           </button>
         </div>
         <br />

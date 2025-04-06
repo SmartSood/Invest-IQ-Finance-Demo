@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {SlideSensex} from './SlideSensex'
 import TranslatorText from './Text'
 import bar from '../assets/bar.jpg'
+import { useLocation } from 'react-router-dom';
 const Navbar = () => {
   const  navigate=useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,7 +14,7 @@ const Navbar = () => {
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
-
+  const location = useLocation();
   return (
   
 
@@ -21,7 +22,7 @@ const Navbar = () => {
   <br />
   <br />
   <br />
-   <div className="bg-gray-100 max-h-screen">  <SlideSensex></SlideSensex></div>
+  {(location.pathname.startsWith('/login/learning'))?<div/>:<div className="bg-gray-100 max-h-screen">  <SlideSensex></SlideSensex></div>}
  
       { <div className="fixed top-0 left-0 w-full bg-white z-50 flex items-center justify-between p-4 border-b border-gray-200 h-[px] shadow-md">
     <div className="flex items-center">
