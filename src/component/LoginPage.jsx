@@ -19,7 +19,7 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await fetch("https://invest-iq-finance-demo-1.onrender.com/api/auth/signup", {
+            const response = await fetch("http://:5001/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fullname, email, password }),
@@ -32,7 +32,7 @@ export default function LoginPage() {
                 login(data.token, { email });
                 localStorage.setItem("token", data.token);
                 alert(t("Signup successful!"));
-                navigate("/login/Dashboard");
+                navigate("/signup/learning");
             } else {
                 setError(data.message);
             }

@@ -160,7 +160,7 @@ export function AboutModule() {
   useEffect(() => {
     const fetchModuleData = async () => {
       try {
-        const response = await fetch("https://invest-iq-finance-demo-1.onrender.com/api/Module/1");
+        const response = await fetch("http://localhost:5001/api/Module/1");
         if (!response.ok) {
           throw new Error(t(`HTTP error! status: ${response.status}`));
         }

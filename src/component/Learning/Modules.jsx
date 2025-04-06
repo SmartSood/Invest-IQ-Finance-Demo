@@ -1,99 +1,94 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Chatbot } from "../ChatBot";
 import { useTranslationContext } from '../../context/TranslationContext';
 import TranslatorText from "../Text";
+import axios from 'axios';
 
 const MainContent = () => {
   const { t } = useTranslationContext();
+  
   const navigate = useNavigate();
+  const [modules, setModules] = useState([]);
+  const [loading, setLoading] = useState(true);
+const [selectedModule, setSelectedModule] = useState(null);
+const [isSignupFlow, setIsSignupFlow] = useState(false);
+const [error, setError] = useState(null);
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/api/modules');
+        console.log("API RESPOnSE" ,response)
+        setModules(response.data);
+      } catch (error) {
+        console.error("Error fetching modules:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  function StartModule(module_number) {
-    navigate("/login/learning/module/myModule");
-  }
+    fetchModules();
+  }, []);
 
-  const modules = [
-    {
-      title: t("Introduction to Stock Market"),
-      description: t("Stock market fundamentals"),
-      moduleNumber: 1
-    },
-    {
-      title: t("Portfolio Management"),
-      description: t("Build your investment portfolio"),
-      moduleNumber: 2
-    },
-    {
-      title: t("Risk Assessment"),
-      description: t("Understand investment risks"),
-      moduleNumber: 3
-    },
-    {
-      title: t("Market Analysis"),
-      description: t("Analyze market trends"),
-      moduleNumber: 4
-    },
-    {
-      title: t("Retirement Planning"),
-      description: t("Long-term investment strategies"),
-      moduleNumber: 5
-    },
-    {
-      title: t("Tax Strategies"),
-      description: t("Tax-efficient investing"),
-      moduleNumber: 6
-    },
-    {
-      title: t("Technical Analysis"),
-      description: t("Chart reading techniques"),
-      moduleNumber: 7
-    },
-    {
-      title: t("Fundamental Analysis"),
-      description: t("Evaluating company finances"),
-      moduleNumber: 8
-    },
-    {
-      title: t("Crypto Basics"),
-      description: t("Understanding cryptocurrencies"),
-      moduleNumber: 9
-    }
-  ];
+  const startModule = (moduleNumber) => {
+    navigate(`/login/learning/module/about`);
+  };
 
-  // Split modules into rows of 3 for display
-  const rows = [];
-  for (let i = 0; i < modules.length; i += 3) {
-    rows.push(modules.slice(i, i + 3));
+  if (loading) {
+    return (
+      <div className="p-8 flex justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   return (
     <div className="p-8">
-      <h2 className="text-3xl font-bold mb-6 text-black">
-        <TranslatorText>My Modules</TranslatorText>
-      </h2>
+      <h2 className="text-3xl font-bold mb-6 text-black"><TranslatorText>About Modules</TranslatorText></h2>
       
-      {rows.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex space-x-4 mb-4">
-          {row.map((module, index) => (
-            <div key={index} className="bg-white p-4 rounded-lg shadow-sm h-40 flex flex-col justify-between w-full max-w-xs">
-              <div>
-                <h3 className="text-lg font-bold mb-1 text-black">{module.title}</h3>
-                <p className="text-sm text-black">{module.description}</p>
-              </div>
-              <button 
-                className="bg-black hover:bg-gray-600 text-white px-3 py-1 rounded text-sm w-full transition-colors duration-200" 
-                onClick={() => StartModule(module.moduleNumber)}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {modules.map((module) => (
+          <div key={module.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            {/* Module Image */}
+            <div className="h-48 bg-gray-100 overflow-hidden">
+              {module.imageUrl ? (
+                <img 
+                  src={module.imageUrl} 
+                  alt={module.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null; 
+                    e.target.src = '/default-module-image.jpg';
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <span className="text-gray-500">No Image</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Module Content */}
+            <div className="p-4">
+              <h3 className="text-xl font-bold mb-2 text-gray-800">{<TranslatorText>{module.title}</TranslatorText>}</h3>
+              <p className="text-gray-600 mb-4 line-clamp-2">{<TranslatorText>{module.description}</TranslatorText>}</p>
+              <button
+                onClick={() => startModule(<TranslatorText>{module.moduleNumber}</TranslatorText>)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
               >
-                <TranslatorText>Start</TranslatorText>
+                Select Module
               </button>
             </div>
-          ))}
-        </div>
-      ))}
-      
-      <Chatbot/>
+          </div>
+        ))}
+      </div>
+
+      <Chatbot />
     </div>
   );
 };
+
+
 
 export default MainContent;

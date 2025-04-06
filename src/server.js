@@ -24,13 +24,14 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  // origin: function (origin, callback) {
+  //   if (!origin || allowedOrigins.includes(origin)) {
+  //     callback(null, true);
+  //   } else {
+  //     callback(new Error('Not allowed by CORS'));
+  //   }
+  // },
+  origin:"*",
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -169,6 +170,145 @@ app.get('/api/Module', async (req, res) => {
   }
 });
 
+
+app.get('/api/modules', async (req, res) => {
+  const client = await getDbClient();
+  const db = client.db(dbName);
+  
+  try {
+    const modules = await db.collection("Module")
+      .find({})
+      .sort({ Module_no: 1 }) // Sort by module number
+      .toArray();
+    
+    // Transform data if needed (e.g., ensure image URL is complete)
+    const formattedModules = modules.map(module => ({
+      id: module._id,
+      title: module.Module_Name,
+      description: module.Module_heading,
+      moduleNumber: module.Module_no,
+      imageUrl: module.Level_image 
+        ? module.Level_image.startsWith('http') 
+          ? module.Level_image 
+          : `${process.env.BASE_URL || ''}${module.Level_image}`
+        : null
+    }));
+
+    res.json(formattedModules);
+  } catch (error) {
+    console.error("Error fetching modules:", error);
+    res.status(500).json({ error: "Failed to fetch modules" });
+  } finally {
+    await client.close();
+  }
+});
+app.get('/api/users/:userId', async (req, res) => {
+  try {
+    const client = await getDbClient();
+    const db = client.db(dbName);
+    
+    const user = await db.collection("Users").findOne(
+      { _id: new ObjectId(req.params.userId) },
+      { projection: { unlockedModules: 1, xp: 1, moduleProgress: 1 } }
+    );
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.json({
+      unlockedModules: user.unlockedModules || [],
+      xp: user.xp || 0,
+      moduleProgress: user.moduleProgress || {}
+    });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    await client.close();
+  }
+});
+
+// Unlock module endpoint
+app.post('/api/users/unlock-module', async (req, res) => {
+  try {
+    const { userId, moduleId, xpCost } = req.body;
+    const client = await getDbClient();
+    const db = client.db(dbName);
+    
+    // Check user has enough XP
+    const user = await db.collection("Users").findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    if (user.xp < xpCost) {
+      return res.status(400).json({ message: "Not enough XP" });
+    }
+    
+    // Update user document
+    const result = await db.collection("Users").updateOne(
+      { _id: new ObjectId(userId) },
+      { 
+        $addToSet: { unlockedModules: moduleId },
+        $inc: { xp: -xpCost },
+        $setOnInsert: { 
+          moduleProgress: { 
+            [moduleId]: { completedLevels: 0 } 
+          } 
+        }
+      }
+    );
+    
+    if (result.modifiedCount === 0) {
+      return res.status(400).json({ message: "Module already unlocked or user not found" });
+    }
+    
+    res.json({ 
+      success: true,
+      newXp: user.xp - xpCost
+    });
+  } catch (error) {
+    console.error("Error unlocking module:", error);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    await client.close();
+  }
+});
+// Add this to your server.js
+app.post('/api/users/add-first-module', async (req, res) => {
+  try {
+    const { userId, moduleId } = req.body;
+    const client = await getDbClient();
+    const db = client.db(dbName);
+    
+    // Add module to user's unlocked modules
+    const result = await db.collection("Users").updateOne(
+      { _id: new ObjectId(userId) },
+      { 
+        $addToSet: { unlockedModules: parseInt(moduleId) },
+        $set: { 
+          'moduleProgress': {
+            [moduleId]: { completedLevels: 0 }
+          },
+          // Give some initial XP
+          xp: 100 
+        }
+      }
+    );
+    
+    if (result.modifiedCount === 0) {
+      return res.status(400).json({ message: "User not found or module already added" });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error adding first module:", error);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    await client.close();
+  }
+});
 // Auth routes (Still need Mongoose)
 app.use("/api/auth", authRoutes);
 
