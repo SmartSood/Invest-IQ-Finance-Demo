@@ -173,7 +173,7 @@ export function SignInPage() {
   data-callback="handleGoogleSignIn"
   data-context="signin"
   data-ux_mode="popup"
-  data-login_uri="http://localhost:5001/api/auth/google" // For local testing
+  data-login_uri="https://invest-iq-finance-demo-1.onrender.com/api/auth/google" // For local testing
 ></div>
 <div 
   className="g_id_signin"
