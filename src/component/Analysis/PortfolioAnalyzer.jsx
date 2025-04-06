@@ -1,16 +1,18 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faMicrophone, 
   faMicrophoneSlash,
   faLanguage,
-  faSpinner
+  faSpinner,
+  faVolumeUp,
+  faVolumeMute
 } from '@fortawesome/free-solid-svg-icons';
 import Navbar from "../navbarModule";
 import DashboardLayout from "../DashboardLayout";
 import { translateText } from '../../services/translationService';
 import {Chatbot} from '../ChatBot'
+
 // Language options
 const LANGUAGES = [
   { code: 'en', name: 'English' },
@@ -24,6 +26,7 @@ const LANGUAGES = [
 
 const GOOGLE_API_KEY = "AIzaSyAAvV790SgykzvhGIvBoqYYRh3rwoip_2Q";
 const SPEECH_API_URL = "https://speech.googleapis.com/v1/speech:recognize";
+const TEXT_TO_SPEECH_API_URL = "https://texttospeech.googleapis.com/v1/text:synthesize";
 
 const FinancialAdvisor = () => {
   // Chat state
@@ -37,6 +40,9 @@ const FinancialAdvisor = () => {
   const [riskAssessment, setRiskAssessment] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [language, setLanguage] = useState('en');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentSpeakingId, setCurrentSpeakingId] = useState(null);
+  const audioRef = useRef(null);
   const messagesEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -49,6 +55,16 @@ const FinancialAdvisor = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Clean up audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -67,6 +83,89 @@ const FinancialAdvisor = () => {
       'zh': 'zh-CN',
     };
     return languageMap[lang] || 'en-US';
+  };
+
+  // Get text-to-speech voice parameters
+  const getVoiceParams = (lang) => {
+    const voiceMap = {
+      'en': { languageCode: 'en-US', name: 'en-US-Wavenet-D' },
+      'hi': { languageCode: 'hi-IN', name: 'hi-IN-Wavenet-A' },
+      'es': { languageCode: 'es-ES', name: 'es-ES-Wavenet-B' },
+      'fr': { languageCode: 'fr-FR', name: 'fr-FR-Wavenet-B' },
+      'de': { languageCode: 'de-DE', name: 'de-DE-Wavenet-B' },
+      'ja': { languageCode: 'ja-JP', name: 'ja-JP-Wavenet-B' },
+      'zh': { languageCode: 'cmn-CN', name: 'cmn-CN-Wavenet-C' },
+    };
+    return voiceMap[lang] || voiceMap['en'];
+  };
+
+  // Text-to-speech function
+  const speakText = async (text, messageId) => {
+    if (isSpeaking && audioRef.current) {
+      audioRef.current.pause();
+      setIsSpeaking(false);
+      setCurrentSpeakingId(null);
+      return;
+    }
+
+    try {
+      setIsSpeaking(true);
+      setCurrentSpeakingId(messageId);
+      
+      const voiceParams = getVoiceParams(language);
+      
+      const response = await fetch(`${TEXT_TO_SPEECH_API_URL}?key=${GOOGLE_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: { text },
+          voice: voiceParams,
+          audioConfig: { 
+            audioEncoding: 'MP3',
+            speakingRate: 1.0,
+            pitch: 0,
+            volumeGainDb: 0
+          }
+        })
+      });
+
+      const data = await response.json();
+      if (data.audioContent) {
+        const audioBlob = base64ToBlob(data.audioContent, 'audio/mp3');
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.play();
+        
+        audioRef.current.onended = () => {
+          setIsSpeaking(false);
+          setCurrentSpeakingId(null);
+        };
+        
+        audioRef.current.onerror = () => {
+          setIsSpeaking(false);
+          setCurrentSpeakingId(null);
+        };
+      }
+    } catch (error) {
+      console.error("Text-to-speech error:", error);
+      setIsSpeaking(false);
+      setCurrentSpeakingId(null);
+    }
+  };
+
+  const base64ToBlob = (base64, mimeType) => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
   };
 
   // Voice recording functions
@@ -178,7 +277,7 @@ const FinancialAdvisor = () => {
   };
 
   const generateFinancialAdvice = async (prompt) => {
-    const GROQ_API_KEY = "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"; // Replace with your key
+    const GROQ_API_KEY = "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";
     
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -480,19 +579,31 @@ const FinancialAdvisor = () => {
     }]);
   };
 
-  const FormattedMessage = ({ text, sender }) => (
+  const FormattedMessage = ({ text, sender, id }) => (
     <div className={`whitespace-pre-wrap ${sender === 'user' ? 'text-white' : 'text-black'}`}>
       {text.split('\n').map((paragraph, i) => (
         <p key={i} className="mb-2 last:mb-0">{paragraph}</p>
       ))}
+      {sender === 'bot' && (
+        <button 
+          onClick={() => speakText(text, id)}
+          className={`mt-2 p-1 rounded-full ${currentSpeakingId === id ? 'bg-indigo-100 text-indigo-600' : 'text-gray-500 hover:text-indigo-600'}`}
+          aria-label={isSpeaking && currentSpeakingId === id ? "Stop speaking" : "Read aloud"}
+        >
+          <FontAwesomeIcon 
+            icon={isSpeaking && currentSpeakingId === id ? faVolumeMute : faVolumeUp} 
+            className="text-sm"
+          />
+        </button>
+      )}
     </div>
   );
 
   return (
-    <div className="  relative  h-[630px] overflow-hidden">
+    <div className="relative h-[630px] overflow-hidden">
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1180px] h-[80vh] bg-gray-100 shadow-md rounded-[34px] border border-gray-100 flex flex-col">
         {/* Header Section */}
-        <div >
+        <div>
           <h1 className="text-[#CACACA] text-[40px] font-normal font-['Aeonik_TRIAL'] leading-[40px] break-words text-center mb-2">
             Portfolio Analyzer
           </h1>
@@ -508,10 +619,10 @@ const FinancialAdvisor = () => {
               >
                 <div 
                   className={`w-[100%] rounded-lg p-4 ${msg.sender === 'user' 
-                    ? 'bg-gradient-to-br  from-[#4A25E1] to-[#7B5AFF] text-black rounded]' 
+                    ? 'bg-gradient-to-br from-[#4A25E1] to-[#7B5AFF] text-black rounded]' 
                     : 'bg-white text-black rounded-bl-none'}`}
                 >
-                  <FormattedMessage text={msg.text} sender={msg.sender} />
+                  <FormattedMessage text={msg.text} sender={msg.sender} id={index} />
                 </div>
               </div>
             ))}
@@ -533,7 +644,6 @@ const FinancialAdvisor = () => {
           </div>
         </div>
         
-
         {/* Input Area */}
         <div className="p-6 border-t border-gray-200">
           <div className="flex items-center justify-between mb-4">
