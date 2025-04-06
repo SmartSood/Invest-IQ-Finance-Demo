@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -26,6 +27,7 @@ import { TranslationProvider } from './context/TranslationContext';
 import { Contact } from './component/Contact/Contact'
 import { Policies } from './component/Policies/Policies'
 import About from './component/About/About' // Changed this line
+import My_modules from './component/Learning/My_modules';
 
 const data = {
   level: 1,
@@ -73,7 +75,9 @@ function App() {
 
             <Route element={<ProtectedRoute />}>
               <Route path='/login/learning' element={<LearningApp/>}/>
+              <Route path='/login/learning/module/myModule' element={<My_modules/>}/>
               <Route path='/login/learning/module/about' element={<AboutModule/>}/>
+              
               <Route path='/login/learning/module/level' element={<LevelApp data={data}/>}/>
               <Route path='/login/learning/module/practice' element={<Practice/>}/>
               <Route path='login/learning/module/level/finish' element={<LevelFinishApp/>}/>
