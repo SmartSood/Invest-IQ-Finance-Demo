@@ -9,7 +9,7 @@ const MainContent = () => {
   const navigate = useNavigate();
 
   function StartModule(module_number) {
-    navigate("/login/learning/module/myModule");
+    navigate("/login/learning/module/about");
   }
 
   const modules = [

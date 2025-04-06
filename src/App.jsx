@@ -75,7 +75,7 @@ function App() {
 
             <Route element={<ProtectedRoute />}>
               <Route path='/login/learning' element={<LearningApp/>}/>
-              <Route path='/login/learning/module/myModule' element={<My_modules/>}/>
+              {/* <Route path='/login/learning/module/myModule' element={<My_modules/>}/> */}
               <Route path='/login/learning/module/about' element={<AboutModule/>}/>
               
               <Route path='/login/learning/module/level' element={<LevelApp data={data}/>}/>

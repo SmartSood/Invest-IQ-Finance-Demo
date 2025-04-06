@@ -321,23 +321,28 @@ export function Chatbot() {
             });
     
             let chatbotResponse = "";
-            if (Array.isArray(response?.data)) {
-                const responseData = response.data[0];
-                if (Array.isArray(responseData)) {
-                    chatbotResponse = responseData[1]?.[1] || 
-                                    responseData[0]?.[1] || 
-                                    responseData[1] || 
-                                    responseData[0] || 
-                                    t("I didn't understand that. Could you rephrase?");
-                } else if (typeof responseData === 'string') {
-                    chatbotResponse = responseData;
+            if (response?.data) {
+                // Handle different response formats
+                if (Array.isArray(response.data)) {
+                    // Case where response.data is an array of arrays
+                    if (response.data.length > 0 && Array.isArray(response.data[0])) {
+                        // Get the last element of the first array
+                        chatbotResponse = response.data[0][response.data[0].length - 1];
+                    } else {
+                        // Get the last element of the array
+                        chatbotResponse = response.data[response.data.length - 1];
+                    }
+                } else if (typeof response.data === 'string') {
+                    chatbotResponse = response.data;
                 }
-            } else if (response?.data) {
-                chatbotResponse = response.data;
             }
     
             if (typeof chatbotResponse === 'string') {
-                chatbotResponse = chatbotResponse.replace(/0+$/, '').trim();
+                chatbotResponse = chatbotResponse.trim();
+                // Remove any leading numbers or special characters
+                chatbotResponse = chatbotResponse.replace(/^\d+\.?\s*/, '');
+            } else {
+                chatbotResponse = t("I didn't understand that. Could you rephrase?");
             }
     
             let translatedResponse = chatbotResponse;
