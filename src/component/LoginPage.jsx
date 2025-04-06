@@ -19,12 +19,12 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await fetch("http://:5001/api/auth/signup", {
+            const response = await fetch("http://localhost:5001/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fullname, email, password }),
             });
-
+            console.log(response);
             const data = await response.json();
             setLoading(false);
 
@@ -32,12 +32,13 @@ export default function LoginPage() {
                 login(data.token, { email });
                 localStorage.setItem("token", data.token);
                 alert(t("Signup successful!"));
-                navigate("/signup/learning");
+                navigate("/login/Dashboard");
             } else {
                 setError(data.message);
             }
         } catch (error) {
             setLoading(false);
+            console.log(error)
             setError(t("Something went wrong. Please try again."));
         }
     };

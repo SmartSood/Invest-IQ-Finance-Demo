@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
       id: decoded.userId,
       email: userData?.email || decoded.email,
       name: userData?.name || decoded.name,
-      picture: userData?.picture || decoded.picture
+      ...userData
     });
   };
 

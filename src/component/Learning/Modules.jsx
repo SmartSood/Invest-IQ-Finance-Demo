@@ -75,7 +75,7 @@ const [error, setError] = useState(null);
               <p className="text-gray-600 mb-4 line-clamp-2">{<TranslatorText>{module.description}</TranslatorText>}</p>
               <button
                 onClick={() => startModule(<TranslatorText>{module.moduleNumber}</TranslatorText>)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+                className="w-full bg-black hover:bg-gray-500 text-white py-2 px-4 rounded transition-colors"
               >
                 Select Module
               </button>

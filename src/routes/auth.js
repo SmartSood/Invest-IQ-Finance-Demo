@@ -45,7 +45,9 @@ router.post("/signup", async (req, res) => {
 
     res.status(201).json({ message: "User registered successfully", token });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Server error" });
+
   }
 });
 router.post("/signin", async (req, res) => {
@@ -66,6 +68,7 @@ router.post("/signin", async (req, res) => {
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
+    console.log(error);
     console.error("Signin error:", error); // Log backend errors
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -80,7 +83,7 @@ router.post("/google", async (req, res) => {
 
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
-      audience: GOOGLE_CLIENT_ID
+      audience: GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
@@ -91,39 +94,42 @@ router.post("/google", async (req, res) => {
 
     const { email, name, picture, sub } = payload;
 
-    // Check if user exists by googleId or email
+    // Check if user exists by googleId OR email
     let user = await User.findOne({ 
       $or: [
         { googleId: sub },
-        { email }
+        { email }  // Check if email exists (even if not Google-authenticated)
       ]
     });
 
     if (!user) {
-      // Create new user
+      // If user doesn't exist, create a new one
       user = new User({
         email,
         fullname: name,
         googleId: sub,
         picture,
         isGoogleAuth: true,
-        isVerified: true // Mark as verified since Google verified the email
+        isVerified: true,
+        // Add a default password (or leave empty if using only Google Auth)
+        password: "google-auth-no-password", // Optional: You can omit this if not needed
       });
       await user.save();
     } else if (!user.googleId) {
-      // User exists but didn't sign up with Google before
+      // If user exists but signed up via email/password before, link Google account
       user.googleId = sub;
       user.isGoogleAuth = true;
       user.picture = picture;
       await user.save();
     }
 
+    // Generate JWT token
     const token = jwt.sign(
       { 
         userId: user._id,
         email: user.email,
         name: user.fullname,
-        picture: user.picture
+        picture: user.picture,
       }, 
       SECRET_KEY, 
       { expiresIn: "1h" }
@@ -135,14 +141,14 @@ router.post("/google", async (req, res) => {
       user: {
         email: user.email,
         name: user.fullname,
-        picture: user.picture
-      }
+        picture: user.picture,
+      },
     });
   } catch (error) {
     console.error("Google auth error:", error);
     res.status(500).json({ 
       message: "Google authentication failed",
-      error: error.message 
+      error: error.message,
     });
   }
 });
