@@ -18,7 +18,7 @@ const [error, setError] = useState(null);
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/modules');
+        const response = await axios.get('https://invest-iq-finance-demo-1.onrender.com/api/modules');
         console.log("API RESPOnSE" ,response)
         setModules(response.data);
       } catch (error) {

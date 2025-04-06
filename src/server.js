@@ -18,7 +18,7 @@ const app = express();
 
 // Middleware
 const allowedOrigins = [
-  'http://localhost:5173', // Your Vite dev server
+  'http://:5173', // Your Vite dev server
   'https://invest-iq-finance-demo.vercel.app',
   'https://invest-iq-finance-demo-1.onrender.com'
 ];
