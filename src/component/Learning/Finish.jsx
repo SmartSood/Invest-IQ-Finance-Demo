@@ -1,34 +1,95 @@
-
 import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useTranslationContext } from '../../context/TranslationContext';
 import Navbar from "../navbarModule";
 import DashboardLayout from "../DashboardLayout";
-import { useNavigate } from "react-router-dom";
-import { Chatbot } from "../ChatBot";
-import { useTranslationContext } from '../../context/TranslationContext';
 import TranslatorText from '../Text';
+import { Chatbot } from "../ChatBot";
+import axios from "axios";
 
 function Finish() {
     const { t } = useTranslationContext();
+    const { moduleId, levelId } = useParams();
+    const navigate = useNavigate();
+    
     const [data, setData] = useState({
-        level: 1,
-        totalXPs: 200,
-        dailyStreak: 20,
-        progress: 12,
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        documentation: t("This is a sample documentation text. Replace this with actual documentation content from JSON.")
+        level: parseInt(levelId),
+        totalXPs: 0,
+        dailyStreak: 0,
+        progress: 0,
+        moduleName: `Module ${moduleId}`,
+        isLastLevel: false,
+        loading: true,
+        error: null
     });
 
     useEffect(() => {
-        // Fetch actual data from an API if needed
-    }, [t]); // Add t to dependencies to retranslate if language changes
-    
-    const navigate = useNavigate();
+        const fetchUserProgress = async () => {
+            try {
+                // Get user ID from localStorage
+                const userId = localStorage.getItem('userId');
+                console.log(userId)
+                if (!userId) {
+                    throw new Error('User ID not found in localStorage');
+                }
+
+                // Fetch user data from API
+                const response = await axios.get(`http://localhost:5001/api/users/${userId}`);
+                const { xp, moduleProgress, unlockedModules} = response.data;
+                console.log(xp)
+                console.log(moduleProgress)
+                console.log(unlockedModules)
+                // Get current module progress
+                const currentModule = moduleProgress?.[moduleId] || {
+                    completedLevels: []
+                };
+                const dailyStreak=null;
+                // Check if this is the last level (assuming 10 levels per module)
+                const isLastLevel = currentModule.completedLevels?.length >= 9;
+                
+                // Calculate progress percentage
+                const progress = currentModule.completedLevels?.length 
+                    ? (currentModule.completedLevels.length / 10) * 100 
+                    : 0;
+                
+                // Update local state
+                setData({
+                    level: parseInt(levelId),
+                    totalXPs: xp || 0,
+                    dailyStreak: dailyStreak || 0,
+                    progress,
+                    moduleName: `Module ${moduleId}`,
+                    isLastLevel,
+                    loading: false,
+                    error: null
+                });
+
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                setData(prev => ({
+                    ...prev,
+                    loading: false,
+                    error: error.message || 'Failed to load user data'
+                }));
+            }
+        };
+        
+        fetchUserProgress();
+    }, [moduleId, levelId, t]);
+
+    if (data.loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (data.error) {
+        return <div>Error: {data.error}</div>;
+    }
 
     return (
         <div className="w-full text-black text-[18px] font-light font-[Aeonik_TRIAL] leading-normal tracking-wide p-6 bg-gray-50 rounded-lg shadow-md">
             {/* Title */}
             <div className="text-sm text-gray-500 mb-2 py-5">
-                <TranslatorText>SPENDING WISELY</TranslatorText>
+                <TranslatorText>{data.moduleName}</TranslatorText>
             </div>
             
             {/* Progress Bar */}
@@ -82,10 +143,16 @@ function Finish() {
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}
                         onClick={() => {
-                            navigate("/login/learning/module/finish");
+                            if (data.isLastLevel) {
+                                navigate(`/login/learning/module/finish`);
+                            } else {
+                                navigate(`/login/learning/module/${moduleId}/level/${parseInt(levelId) + 1}`);
+                            }
                         }}
                     >
-                        <TranslatorText>Next Level</TranslatorText>
+                        <TranslatorText>
+                            {data.isLastLevel ? "Finish Module" : "Next Level"}
+                        </TranslatorText>
                     </button>
                 </div>
             </div>

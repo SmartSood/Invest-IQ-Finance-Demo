@@ -29,7 +29,7 @@ import { Policies } from './component/Policies/Policies'
 import About from './component/About/About' // Changed this line
 import My_modules from './component/Learning/My_modules';
 import MainContent from './component/Learning/Modules';
-
+import { XpProvider } from './context/XpContext';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -37,6 +37,7 @@ function App() {
   return (
     <AuthProvider>
       <TranslationProvider> 
+      <XpProvider>
         <Router>
           <Routes>
             <Route path='/' element={
@@ -75,7 +76,7 @@ function App() {
   <Route path='/login/learning/my_modules/about/:moduleId' element={<AboutModule/>}/>
               <Route path='/login/learning/module/:moduleId/level/:levelId' element={<LevelApp />}/>
               <Route path='/login/learning/module/:moduleId/level/:levelId/practice' element={<Practice/>}/>
-              <Route path='login/learning/module/level/finish' element={<LevelFinishApp/>}/>
+              <Route path='login/learning/module/:moduleId/level/:levelId/finish' element={<LevelFinishApp/>}/>
               <Route path='login/learning/module/finish' element={<LevelFinishApp2/>}/>
               <Route path='/login/analysis' element={<QuestionnaireApp/>}/>
               <Route path='/login/analysis/selection' element={<SelectionApp/>}/>
@@ -86,6 +87,7 @@ function App() {
             </Route>
           </Routes>
         </Router>
+        </XpProvider>
       </TranslationProvider>
     </AuthProvider>
   )

@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,7 +6,8 @@ import Navbar from "../navbarModule";
 import DashboardLayout from "../DashboardLayout";
 import { useTranslationContext } from '../../context/TranslationContext';
 import TranslatorText from "../Text";
-
+import { useXp } from '../../context/XpContext';
+import { Chatbot } from '../ChatBot';
 const My_modules = () => {
   const { t } = useTranslationContext();
   const navigate = useNavigate();
@@ -15,34 +15,31 @@ const My_modules = () => {
   const [lockedModules, setLockedModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [xp, setXp] = useState(0);
-
+  const { xp, setXp, badges, setBadges } = useXp();
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+  const containerRef = useRef(null);
+  const [activeSection, setActiveSection] = useState(t("Learning Hub"));
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        // Get user ID from auth context or local storage
         const userId = localStorage.getItem('userId');
-        
-        // Fetch all modules and user's specific data in parallel
         const [allModulesRes, userDataRes] = await Promise.all([
           axios.get('http://localhost:5001/api/modules'),
           axios.get(`http://localhost:5001/api/users/${userId}`)
         ]);
-
         const allModules = allModulesRes.data;
         const userData = userDataRes.data;
-        
         setXp(userData.xp || 0);
-        
-        // Separate unlocked and locked modules
-        const unlocked = allModules.filter(module => 
+
+        const unlocked = allModules.filter(module =>
           userData.unlockedModules?.includes(module.moduleNumber)
-        );
-        
-        const locked = allModules.filter(module => 
+        ).sort((a, b) => a.moduleNumber - b.moduleNumber);
+
+        const locked = allModules.filter(module =>
           !userData.unlockedModules?.includes(module.moduleNumber)
-        );
+        ).sort((a, b) => a.moduleNumber - b.moduleNumber);
 
         setMyModules(unlocked.map(module => {
           const moduleProgress = userData.moduleProgress?.[module.moduleNumber.toString()] || {};
@@ -53,7 +50,7 @@ const My_modules = () => {
             Module_heading: module.description,
             Level_image: module.imageUrl,
             completedCount: moduleProgress.completedLevels?.length || 0,
-            totalCount: 10 // Default to 10 if not specified
+            totalCount: module.totalLevels || 10
           };
         }));
 
@@ -62,9 +59,10 @@ const My_modules = () => {
           Module_no: module.moduleNumber,
           Module_Name: module.title,
           Module_heading: module.description,
-          Level_image: module.imageUrl
+          Level_image: module.imageUrl,
+          totalLevels: module.totalLevels || 10
         })));
-        
+        localStorage.setItem("xp",userData.xp||0);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
@@ -83,8 +81,7 @@ const My_modules = () => {
         moduleId,
         xpCost: 100
       });
-      
-      // Update local state
+
       const moduleToUnlock = lockedModules.find(m => m.Module_no === moduleId);
       if (moduleToUnlock) {
         setMyModules(prev => [
@@ -92,13 +89,13 @@ const My_modules = () => {
           {
             ...moduleToUnlock,
             completedCount: 0,
-            totalCount: 10
+            totalCount: moduleToUnlock.totalLevels || 10
           }
-        ]);
+        ].sort((a, b) => a.Module_no - b.Module_no));
+
         setLockedModules(prev => prev.filter(m => m.Module_no !== moduleId));
         setXp(response.data.newXp);
-        
-        // Show success message
+setBadges(response.data.badges?.length || 0);
         toast.success(`Module unlocked successfully!`);
       }
     } catch (err) {
@@ -107,23 +104,20 @@ const My_modules = () => {
     }
   };
 
-  // Scroll functions for explore more section
-  const scrollLeft = () => {
-    const container = document.getElementById('explore-container');
-    container.scrollBy({ left: -300, behavior: 'smooth' });
-  };
 
-  const scrollRight = () => {
-    const container = document.getElementById('explore-container');
-    container.scrollBy({ left: 300, behavior: 'smooth' });
-  };
+
+
+
+
+
+
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100">
         <Navbar />
         <div className="flex">
-          <DashboardLayout />
+        <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}/>
           <div className="flex-1 p-8">
             <div className="max-w-7xl mx-auto">
               <div className="animate-pulse space-y-6">
@@ -151,7 +145,7 @@ const My_modules = () => {
       <div className="min-h-screen bg-gray-100">
         <Navbar />
         <div className="flex">
-          <DashboardLayout />
+        <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}/>
           <div className="flex-1 p-8">
             <div className="max-w-7xl mx-auto bg-red-100 border-l-4 border-red-500 p-4">
               <p className="text-red-700">
@@ -168,8 +162,8 @@ const My_modules = () => {
     <div className="min-h-screen bg-gray-100">
       <Navbar />
       <div className="flex">
-        <DashboardLayout />
-        <div className="flex-1 p-4 md:p-8">
+      <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}/>
+        <div className="flex-1 p-4 md:p-8 overflow-hidden">
           <div className="max-w-7xl mx-auto">
             {/* My Modules Section */}
             <div className="mb-12">
@@ -185,13 +179,20 @@ const My_modules = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div        className="flex overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarGutter: 'stable',
+                  paddingLeft: '1rem',
+                  paddingRight: '1rem',
+                  gap: '1rem'
+                }}>
                   {myModules.map((module) => (
                     <div 
                       key={`my-module-${module.Module_no}`}
-                      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex-shrink-0 w-[411px] h-[430px]"
                     >
-                      <div className="h-40 bg-gray-200 overflow-hidden flex items-center justify-center">
+                      {/* <div className="h-40 bg-gray-200 h- overflow-hidden flex items-center justify-center">
                         {module.Level_image ? (
                           <img 
                             src={module.Level_image} 
@@ -208,13 +209,37 @@ const My_modules = () => {
                             </p>
                           </div>
                         )}
-                      </div>
+                      </div> */}
+                                              <div className="relative h-[242px] bg-gray-200 overflow-hidden">
+  {module.Level_image ? (
+    <>
+      <img 
+        src={module.Level_image} 
+        alt={module.Module_Name}
+        className="w-full h-full object-cover"
+      />
+      {/* Overlayed text without background */}
+      <div className="absolute bottom-2 left-2 z-10">
+        <h3 className="text-lg font-semibold text-white drop-shadow-md">
+          <TranslatorText translationKey={`moduleTitle_${module.Module_no}`}>
+            {module.Module_Name}
+          </TranslatorText>
+        </h3>
+      </div>
+    </>
+  ) : (
+    <div className="flex flex-col items-center justify-center h-full text-gray-500 p-4">
+      <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <p className="mt-1 text-sm text-center">
+        <TranslatorText translationKey="lockedModule">Locked Module</TranslatorText>
+      </p>
+    </div>
+  )}
+</div>
                       <div className="p-6">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                          <TranslatorText translationKey={`moduleTitle_${module.Module_no}`}>
-                            {module.Module_Name}
-                          </TranslatorText>
-                        </h3>
+                  
                         <div className="mb-4">
                           <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div 
@@ -222,17 +247,26 @@ const My_modules = () => {
                               style={{ width: `${(module.completedCount / module.totalCount) * 100}%` }}
                             />
                           </div>
+                          <div className='h-[12px]'></div>
                           <p className="text-sm text-gray-600 mt-2">
                             {module.completedCount} <TranslatorText translationKey="outOf">out of</TranslatorText> {module.totalCount}{' '}
                             <TranslatorText translationKey="levelsCompleted">levels completed</TranslatorText>
                           </p>
                         </div>
+                        <div className='h-[33px]'></div>
+                        <div className='flex justify-center'>
                         <button 
-                          className="w-full flex items-center justify-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300"
+                         className={`w-[214px] h-[44px] px-3 py-2 rounded-[43.202px] border bg-white text-black  transition-colors justify-end duration-300 
+                        
+                             hover:bg-gray-200
+               
+                        }`}
                           onClick={() => navigate(`/login/learning/my_modules/about/${module.Module_no}`)}
                         >
                           <TranslatorText translationKey="continueButton">Continue</TranslatorText>
                         </button>
+                        </div>
+               
                       </div>
                     </div>
                   ))}
@@ -242,63 +276,73 @@ const My_modules = () => {
 
             {/* Locked Modules Section */}
             {lockedModules.length > 0 && (
-              <div className="mb-12">
+              <div className="mb-20">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">
                   <TranslatorText translationKey="availableModules">Available Modules</TranslatorText>
                 </h2>
                 <div className="relative">
-                  <button 
-                    onClick={scrollLeft}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition-colors duration-300 hidden md:block"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
+             
                   
                   <div 
-                    id="explore-container"
-                    className="flex space-x-4 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+                    ref={containerRef}
+                    className="flex overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+                    style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarGutter: 'stable',
+                      paddingLeft: '1rem',
+                      paddingRight: '1rem',
+                      gap: '1rem'
+                    }}
                   >
                     {lockedModules.map((module) => (
                       <div 
                         key={`locked-module-${module.Module_no}`}
-                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex-shrink-0 w-64 relative"
+                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex-shrink-0 w-[411px] h-[430px]"
                       >
-                        <div className="h-32 bg-gray-200 overflow-hidden flex items-center justify-center">
-                          {module.Level_image ? (
-                            <img 
-                              src={module.Level_image} 
-                              alt={module.Module_Name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-gray-500 text-center p-4">
-                              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                              </svg>
-                              <p className="mt-1 text-sm">
-                                <TranslatorText translationKey="lockedModule">Locked Module</TranslatorText>
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                            <TranslatorText translationKey={`moduleTitle_${module.Module_no}`}>
-                              {module.Module_Name}
-                            </TranslatorText>
-                          </h3>
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+               
+                        <div className="relative h-[242px] bg-gray-200 overflow-hidden">
+  {module.Level_image ? (
+    <>
+      <img 
+        src={module.Level_image} 
+        alt={module.Module_Name}
+        className="w-full h-full object-cover"
+      />
+      {/* Overlayed text without background */}
+      <div className="absolute bottom-2 left-2 z-10">
+        <h3 className="text-lg font-semibold text-white drop-shadow-md">
+          <TranslatorText translationKey={`moduleTitle_${module.Module_no}`}>
+            {module.Module_Name}
+          </TranslatorText>
+        </h3>
+      </div>
+    </>
+  ) : (
+    <div className="flex flex-col items-center justify-center h-full text-gray-500 p-4">
+      <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <p className="mt-1 text-sm text-center">
+        <TranslatorText translationKey="lockedModule">Locked Module</TranslatorText>
+      </p>
+    </div>
+  )}
+</div>
+
+                        <div className=" ">
+                       <div className='h-[22px]'></div>
+                          <p className="text-gray-600 text-sm mb-4 px-[26px]  line-clamp-2">
                             <TranslatorText translationKey={`moduleDesc_${module.Module_no}`}>
                               {module.Module_heading}
                             </TranslatorText>
                           </p>
-                          <button 
-                            className={`w-full px-3 py-2 rounded-md text-sm transition-colors duration-300 ${
+                          <div className='h-[45px]'></div>
+                          <div className='flex justify-center'>   
+                           <button 
+                            className={`w-[214px] h-[44px] px-3 py-2 rounded-[43.202px] border bg-white text-black  transition-colors justify-end duration-300 ${
                               xp >= 100 
-                                ? "bg-black text-white hover:bg-gray-800"
-                                : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                ? "bg-white text-black hover:bg-gray-200"
+                                : "bg-white text-black cursor-not-allowed"
                             }`}
                             onClick={() => unlockModule(module.Module_no)}
                             disabled={xp < 100}
@@ -308,26 +352,21 @@ const My_modules = () => {
                             ) : (
                               <TranslatorText translationKey="needMoreXP">Need {100 - xp} more XP</TranslatorText>
                             )}
-                          </button>
+                          </button></div>
+                      
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  <button 
-                    onClick={scrollRight}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition-colors duration-300 hidden md:block"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+ 
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+      <Chatbot/>
     </div>
   );
 };

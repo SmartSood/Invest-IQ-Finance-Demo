@@ -1,142 +1,117 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../navbarModule";
 import DashboardLayout from "../DashboardLayout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { useXp } from "../../context/XpContext";
+
 export function Practice() {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [activeSection, setActiveSection] = useState("Learning Hub");
-  const Navigate=useNavigate();
-  const quizData = {
-    title: "SPENDING WISELY",
-    level: 2,
-    topic: "Personal Finance",
-    questions: [
-      {
-        id: 1,
-        text: "What percentage of your income should you ideally save?",
-        options: ["5-10%", "10-20%", "20-30%", "30-50%"],
-        correctAnswer: 1,
-      },
-      {
-        id: 2,
-        text: "Which of these is an example of a fixed expense?",
-        options: ["Groceries", "Rent", "Entertainment", "Clothing"],
-        correctAnswer: 1,
-      },
-      {
-        id: 3,
-        text: "What is an emergency fund used for?",
-        options: [
-          "Buying luxury items",
-          "Unexpected expenses",
-          "Investing in stocks",
-          "Vacation trips",
-        ],
-        correctAnswer: 1,
-      },
-      {
-        id: 4,
-        text: "Which of these is considered bad debt?",
-        options: [
-          "Home mortgage",
-          "Student loan",
-          "Credit card debt",
-          "Business loan",
-        ],
-        correctAnswer: 2,
-      },
-      {
-        id: 5,
-        text: "What does a credit score measure?",
-        options: [
-          "Your intelligence",
-          "Your savings balance",
-          "Your borrowing history",
-          "Your income level",
-        ],
-        correctAnswer: 2,
-      },
-      {
-        id: 6,
-        text: "What is the '50-30-20' rule?",
-        options: [
-          "50% needs, 30% wants, 20% savings",
-          "50% savings, 30% needs, 20% wants",
-          "50% wants, 30% savings, 20% needs",
-          "50% expenses, 30% investments, 20% debt",
-        ],
-        correctAnswer: 0,
-      },
-      {
-        id: 7,
-        text: "Which type of account typically has the highest interest rate?",
-        options: [
-          "Checking account",
-          "Savings account",
-          "Fixed deposit account",
-          "Credit card account",
-        ],
-        correctAnswer: 2,
-      },
-      {
-        id: 8,
-        text: "What is compound interest?",
-        options: [
-          "Interest earned on the principal amount",
-          "Interest earned on interest",
-          "A one-time interest payment",
-          "A penalty for early withdrawal",
-        ],
-        correctAnswer: 1,
-      },
-      {
-        id: 9,
-        text: "What is the main benefit of budgeting?",
-        options: [
-          "Spending more on entertainment",
-          "Tracking income and expenses",
-          "Avoiding paying taxes",
-          "Saving only when extra money is available",
-        ],
-        correctAnswer: 1,
-      },
-      {
-        id: 10,
-        text: "Which of these is a smart saving habit?",
-        options: [
-          "Spending first, saving later",
-          "Waiting for a raise before saving",
-          "Setting aside a fixed amount regularly",
-          "Only saving when extra money is available",
-        ],
-        correctAnswer: 2,
-      },
-    ],
-  };
+  const [questions, setQuestions] = useState([]);
+  const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [totalXP, setTotalXP] = useState(0);
+  const navigate = useNavigate();
+  const { moduleId, levelId } = useParams();
+  const { xp, setXp, badges, setBadges } = useXp();
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5001/api/module/${moduleId}/level/${levelId}/questions`);
+        setQuestions(response.data);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+        // Redirect if error occurs
+      }
+    };
+
+    fetchQuestions();
+  }, [moduleId, levelId, navigate,setXp]);
 
   const handleOptionSelect = (optionIndex) => {
-    setSelectedOption(optionIndex);
+    if (!isAnswerChecked) {
+      setSelectedOption(optionIndex);
+    }
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestion < quizData.questions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
-      setSelectedOption(null); // Reset selection for next question
+  const checkAnswer = () => {
+    if (selectedOption === null) return;
+
+ 
+    const currentQ = questions[currentQuestionIndex];
+    const correctAnswerIndex = ['A', 'B', 'C', 'D'].indexOf(currentQ.Answer);
+    const correct = selectedOption === correctAnswerIndex;
+    setIsCorrect(correct);
+    setIsAnswerChecked(true);
+    
+    // Update XP based on answer
+    setTotalXP(prevXP => prevXP + (correct ? 10 : 5));
+  };
+
+  const updateUserXP = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      await axios.post('http://localhost:5001/api/user/update-xp', {
+        xp: totalXP,
+        moduleId:moduleId,
+        levelId:levelId,
+        userId: userId
+        
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+    } catch (error) {
+      console.error("Error updating XP:", error);
+    }
+  };
+
+  const handleNextQuestion = async () => {
+    if (!isAnswerChecked) {
+      checkAnswer();
+      return;
+    }
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedOption(null);
+      setIsAnswerChecked(false);
+      setIsCorrect(false);
     } else {
-      Navigate("/login/learning/module/level/finish");
+      // Update user XP before navigating
+      await updateUserXP();
+      navigate(`/login/learning/module/${moduleId}/level/${levelId}/finish`, {
+        state: { 
+          totalXP,
+          correctAnswers: Math.floor(totalXP / 10), // Since each correct answer gives 10 XP
+          totalQuestions: questions.length
+        }
+      });
     }
   };
 
-  const handlePrevQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
-      setSelectedOption(null); // Reset selection when going back
-    }
-  };
+  if (questions.length === 0) {
+    return <div>Loading...</div>;
+  }
 
-  const currentQ = quizData.questions[currentQuestion];
-  const progress = ((currentQuestion + 1) / quizData.questions.length) * 100;
+  const currentQ = questions[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+
+  const getOptionColor = (index) => {
+    if (!isAnswerChecked) return selectedOption === index ? "bg-gray-300" : "bg-gray-50";
+    
+    const correctAnswerIndex = ['A', 'B', 'C', 'D'].indexOf(currentQ.Answer);
+    
+    if (index === correctAnswerIndex) {
+      return "bg-green-200";
+    } else if (index === selectedOption && !isCorrect) {
+      return "bg-red-200";
+    }
+    return "bg-gray-50";
+  };
 
   return (
     <div>
@@ -147,7 +122,7 @@ export function Practice() {
             {/* Quiz Header */}
             <div className="flex flex-col items-center gap-2.5">
               <h1 className="text-black text-lg font-light tracking-[2.7px] text-center break-words m-0">
-                {quizData.title}
+                {currentQ.Module_Name}
               </h1>
               <div className="w-full h-2 bg-amber-100 rounded-[101.55px] mt-2.5">
                 <div
@@ -159,49 +134,54 @@ export function Practice() {
 
             {/* Level Info */}
             <div className="text-black text-3xl font-bold break-words text-center my-5">
-              Level {quizData.level} - Test your knowledge on {quizData.topic}
+              Level {currentQ.Level_no} - {currentQ.Level_Topic}
             </div>
 
             {/* Question Box */}
             <div className="w-full bg-white rounded-xl p-6 box-border">
               <div className="text-black text-2xl font-normal break-words mb-4">
-                Question {currentQuestion + 1}
+                Question {currentQuestionIndex + 1} of {questions.length}
               </div>
-              <div className="text-black text-lg font-normal break-words">{currentQ.text}</div>
+              <div className="text-black text-lg font-normal break-words">{currentQ.Question}</div>
             </div>
 
             {/* Options Container */}
             <div className="flex flex-col gap-4 w-full mt-5">
-              {currentQ.options.map((option, index) => (
+              {[
+                currentQ.Option_A,
+                currentQ.Option_B,
+                currentQ.Option_C,
+                currentQ.Option_D
+              ].map((option, index) => (
                 <button
                   key={index}
-                  className={`w-[50%] py-[23px] px-[39px] ${
-                    selectedOption === index ? "bg-gray-300" : "bg-gray-50"
-                  } shadow-md rounded-[70px] flex justify-start items-center gap-2 box-border cursor-pointer transition-all duration-300 ease-in-out border-none text-left hover:bg-gray-200`}
+                  className={`w-[50%] py-[23px] px-[39px] ${getOptionColor(index)} shadow-md rounded-[70px] flex justify-start items-center gap-2 box-border cursor-pointer transition-all duration-300 ease-in-out border-none text-left hover:${!isAnswerChecked ? 'bg-gray-200' : ''}`}
                   onClick={() => handleOptionSelect(index)}
+                  disabled={isAnswerChecked}
                 >
-                  <div className="text-black text-base font-normal break-words">{option}</div>
+                  <div className="text-black text-base font-normal break-words">
+                    {['A', 'B', 'C', 'D'][index]}. {option}
+                  </div>
                 </button>
               ))}
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              {/* Previous Button */}
-              <button
-                className="p-4 bg-gray-600 rounded-full cursor-pointer w-32 h-12 flex justify-center items-center hover:bg-gray-700 transition-colors text-white font-bold"
-                onClick={handlePrevQuestion}
-                disabled={currentQuestion === 0}
-              >
-                ← Previous
-              </button>
+            {/* Feedback Message */}
+            {isAnswerChecked && (
+              <div className={`text-center p-4 rounded-lg ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                {isCorrect ? "Correct! Well done! (+10 XP)" : `Incorrect. The correct answer is ${currentQ.Answer} (+5 XP)`}
+              </div>
+            )}
 
-              {/* Next Button */}
+            {/* Confirm/Next/Finish Button */}
+            <div className="flex justify-center mt-8">
               <button
                 className="p-4 bg-black rounded-full cursor-pointer w-32 h-12 flex justify-center items-center hover:bg-gray-800 transition-colors text-white font-bold"
                 onClick={handleNextQuestion}
+                disabled={selectedOption === null && !isAnswerChecked}
               >
-                {currentQuestion === quizData.questions.length - 1 ? "Finish" : "Next →"}
+                {!isAnswerChecked ? "Confirm" : 
+                 currentQuestionIndex < questions.length - 1 ? "Next →" : "Finish"}
               </button>
             </div>
           </div>

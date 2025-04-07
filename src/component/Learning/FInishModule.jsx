@@ -1,20 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../navbarModule";
 import DashboardLayout from "../DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { Chatbot } from "../ChatBot";
 import { useTranslationContext } from "../../context/TranslationContext";
 import TranslatorText from "../Text";
+import axios from "axios";
 
 function FinishModule() {
     const { t } = useTranslationContext();
+    const navigate = useNavigate();
     const [data, setData] = useState({
         level: 1,
-        totalXPs: 200,
-        dailyStreak: 20,
-        progress: 12,
+        totalXPs: 0,
+        dailyStreak: 0,
+        progress: 0,
+        loading: true,
+        error: null
     });
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const userId = localStorage.getItem('userId');
+                if (!userId) {
+                    throw new Error('User ID not found');
+                }
+
+                const response = await axios.get(`http://localhost:5001/api/users/${userId}`);
+                const userData = response.data;
+
+                setData({
+                    level: 1, // You might want to calculate this based on module progress
+                    totalXPs: userData.xp || 0,
+                    dailyStreak: userData.dailyStreak || 0,
+                    progress: 100, // Module is complete, so 100% progress
+                    loading: false,
+                    error: null
+                });
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                setData(prev => ({
+                    ...prev,
+                    loading: false,
+                    error: error.message || 'Failed to load user data'
+                }));
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    if (data.loading) {
+        return <div className="w-full p-6 bg-gray-50 min-h-screen flex items-center justify-center">Loading...</div>;
+    }
+
+    if (data.error) {
+        return <div className="w-full p-6 bg-gray-50 min-h-screen flex items-center justify-center text-red-500">Error: {data.error}</div>;
+    }
 
     return (
         <div className="w-full p-6 bg-gray-50 min-h-screen">
@@ -62,10 +105,10 @@ function FinishModule() {
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}
                         onClick={() => {
-                            navigate("/login/learning");
+                            navigate("/login/learning/my_modules");
                         }}
                     >
-                        <TranslatorText>Back To Home</TranslatorText>
+                        <TranslatorText>Back To My Modules</TranslatorText>
                     </button>
                 </div>
             </div>

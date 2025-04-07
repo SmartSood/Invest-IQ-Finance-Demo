@@ -203,10 +203,9 @@ app.get('/api/modules', async (req, res) => {
   }
 });
 app.get('/api/users/:userId', async (req, res) => {
-  let client;
-
+let client;
   try {
-    client = await getDbClient();
+    const client = await getDbClient();
     const db = client.db(dbName);
 
     const user = await db.collection("users").findOne(
@@ -217,11 +216,12 @@ app.get('/api/users/:userId', async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+   
 
     res.json({
       unlockedModules: user.unlockedModules || [],
       xp: user.xp || 0,
-      moduleProgress: user.moduleProgress || {}
+      moduleProgress: user.moduleProgress || {},
     });
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -237,7 +237,161 @@ app.get('/api/users/:userId', async (req, res) => {
     }
   }
 });
+app.patch('/api/users/:userId/progress', async (req, res) => {
+  let client;
+  try {
+    client = await getDbClient();
+    const db = client.db(dbName);
+    const { moduleId, levelId, xpEarned } = req.body;
+    const levelNum = parseInt(levelId);
 
+    // Get current user data
+    const user = await db.collection("users").findOne(
+      { _id: new ObjectId(req.params.userId) }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Initialize moduleProgress if it doesn't exist
+    const moduleProgress = user.moduleProgress || {};
+    moduleProgress[moduleId] = moduleProgress[moduleId] || {
+      currentLevel: 1,
+      completedLevels: [],
+      highestScore: 0
+    };
+
+    // Update if level not already completed
+    if (!moduleProgress[moduleId].completedLevels.includes(levelNum)) {
+      // Add to completed levels
+      moduleProgress[moduleId].completedLevels = [
+        ...moduleProgress[moduleId].completedLevels,
+        levelNum
+      ];
+      
+      // Update current level
+      moduleProgress[moduleId].currentLevel = Math.max(
+        moduleProgress[moduleId].currentLevel,
+        levelNum + 1
+      );
+
+      // Update user in database
+      await db.collection("users").updateOne(
+        { _id: new ObjectId(req.params.userId) },
+        {
+          $set: {
+            moduleProgress: moduleProgress,
+            xp: (user.xp || 0) + (xpEarned || 100)
+          }
+        }
+      );
+    }
+
+    res.json({
+      success: true,
+      xp: (user.xp || 0) + (xpEarned || 100),
+      moduleProgress: moduleProgress
+    });
+  } catch (error) {
+    console.error("Error updating progress:", error);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    if (client) {
+      try {
+        await client.close();
+      } catch (closeError) {
+        console.error("Error closing MongoDB client:", closeError);
+      }
+    }
+  }
+});
+// Modified route to fetch all questions for a level
+app.get('/api/module/:moduleId/level/:levelId/questions', async (req, res) => {
+  try {
+    const client = await getDbClient();
+    const { moduleId, levelId } = req.params;
+    const db = client.db(dbName);
+    const levelsCollection = db.collection('Questions');
+ 
+    const questions = await levelsCollection.find({
+      Module_no: parseInt(moduleId),
+      Level_no: parseInt(levelId)
+    }).sort({ Question_no: 1 }).toArray();
+    
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({ message: 'No questions found for this level' });
+    }
+
+    res.json(questions);
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// In your user routes file
+
+
+
+
+
+
+app.post('/api/user/update-xp', async (req, res) => {
+  try {
+    const client = await getDbClient();
+    const db = client.db(dbName);
+    const usersCollection = db.collection('users');
+
+    const { xp, moduleId, levelId, userId } = req.body;
+
+    if (!xp || !moduleId || !levelId || !userId) {
+      return res.status(400).json({ message: "Missing required fields." });
+    }
+
+    const objectUserId = new ObjectId(userId);
+    const completedLevelsKey = `moduleProgress.${moduleId}.completedLevels`;
+    const currentLevelKey = `moduleProgress.${moduleId}.currentLevel`;
+    const highestScoreKey = `moduleProgress.${moduleId}.highestScore`;
+
+    // 1. Increment total XP
+    const xpResult = await usersCollection.updateOne(
+      { _id: objectUserId },
+      { $inc: { xp: parseInt(xp) } }
+    );
+
+    if (xpResult.matchedCount === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // 2. Add level to completedLevels
+    await usersCollection.updateOne(
+      { _id: objectUserId },
+      {
+        $addToSet: {
+          [completedLevelsKey]: parseInt(levelId)
+        }
+      }
+    );
+
+    // 3. Conditionally update currentLevel and highestScore
+    await usersCollection.updateOne(
+      { _id: objectUserId },
+      {
+        $max: {
+          [currentLevelKey]: parseInt(levelId) + 1,
+          [highestScoreKey]: parseInt(xp)
+        }
+      }
+    );
+
+    res.status(200).json({ message: 'XP, completed level, current level, and score updated successfully.' });
+
+  } catch (error) {
+    console.error("Error updating user XP and level:", error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Unlock module endpoint
 
@@ -313,7 +467,7 @@ app.post('/api/users/add-first-module', async (req, res) => {
   
   try {
     const { userId, moduleId } = req.body;
-    console.log(userId,moduleId)
+    
     // Validate input
     if (!userId || !moduleId) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -321,14 +475,16 @@ app.post('/api/users/add-first-module', async (req, res) => {
 
     client = await getDbClient();  // Assign the client here
     const db = client.db(dbName);
-    console.log(db)
+   
     const result = await db.collection("users").updateOne(
       { _id: new ObjectId(userId) },  // Now ObjectId is defined
       { 
         $addToSet: { unlockedModules: parseInt(moduleId) },
         $set: { 
           'moduleProgress': {
-            [moduleId]: { completedLevels: 0 }
+            [moduleId]: { currentLevel: 1,
+        completedLevels: [],
+        highestScore: 0}
           },
           xp: 0
         }
@@ -408,7 +564,7 @@ app.use("/api/auth", authRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.log(err)
+    
   console.error("Unhandled error:", err);
   res.status(500).json({ error: "Internal server error" });
 });

@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
     type: Map,
     of: new mongoose.Schema({
       currentLevel: { type: Number, default: 1 },
-      completedLevels: [Number], // Array of completed level numbers
+      completedLevels:{type: [Number], default:[]},// Array of completed level numbers
       highestScore: Number
     }),
     default: {}
