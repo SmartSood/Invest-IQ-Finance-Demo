@@ -26,8 +26,8 @@ const My_modules = () => {
         setLoading(true);
         const userId = localStorage.getItem('userId');
         const [allModulesRes, userDataRes] = await Promise.all([
-          axios.get('http://localhost:5001/api/modules'),
-          axios.get(`http://localhost:5001/api/users/${userId}`)
+          axios.get('https://invest-iq-finance-demo-1.onrender.com/api/modules'),
+          axios.get(`https://invest-iq-finance-demo-1.onrender.com/api/users/${userId}`)
         ]);
         const allModules = allModulesRes.data;
         const userData = userDataRes.data;
@@ -76,7 +76,7 @@ const My_modules = () => {
   const unlockModule = async (moduleId) => {
     try {
       const userId = localStorage.getItem('userId');
-      const response = await axios.post('http://localhost:5001/api/users/unlock-module', {
+      const response = await axios.post('https://invest-iq-finance-demo-1.onrender.com/api/users/unlock-module', {
         userId,
         moduleId,
         xpCost: 100

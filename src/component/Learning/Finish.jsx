@@ -34,7 +34,7 @@ function Finish() {
                 }
 
                 // Fetch user data from API
-                const response = await axios.get(`http://localhost:5001/api/users/${userId}`);
+                const response = await axios.get(`https://invest-iq-finance-demo-1.onrender.com/api/users/${userId}`);
                 const { xp, moduleProgress, unlockedModules} = response.data;
                 console.log(xp)
                 console.log(moduleProgress)

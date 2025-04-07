@@ -23,7 +23,7 @@ const Navbar = () => {
       try {
         const userid=localStorage.getItem("userId")
         if (user && userid) {
-          const response = await axios.get(`http://localhost:5001/api/users/${userid}`);
+          const response = await axios.get(`https://invest-iq-finance-demo-1.onrender.com/api/users/${userid}`);
           const userData = response.data;
           // Set XP count (assuming 'xp' field exists in user data)
           setFireCount(userData.badges?.length|| 0);

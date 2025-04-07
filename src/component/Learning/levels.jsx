@@ -23,7 +23,7 @@ export function LevelApp() {
                 throw new Error("Module ID or Level ID not provided");
             }
             
-            const response = await fetch(`http://localhost:5001/api/module/${moduleId}/level/${levelId}`);
+            const response = await fetch(`https://invest-iq-finance-demo-1.onrender.com/api/module/${moduleId}/level/${levelId}`);
             if (!response.ok) {
                 throw new Error(t(`HTTP error! status: ${response.status}`));
             }

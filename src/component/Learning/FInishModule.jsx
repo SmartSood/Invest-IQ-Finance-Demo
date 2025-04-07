@@ -27,7 +27,7 @@ function FinishModule() {
                     throw new Error('User ID not found');
                 }
 
-                const response = await axios.get(`http://localhost:5001/api/users/${userId}`);
+                const response = await axios.get(`https://invest-iq-finance-demo-1.onrender.com/api/users/${userId}`);
                 const userData = response.data;
 
                 setData({

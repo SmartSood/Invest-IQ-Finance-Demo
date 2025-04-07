@@ -38,7 +38,7 @@ export function SignInPage() {
     setError('');
     
     try {
-      const res = await fetch('http://localhost:5001/api/auth/google', {
+      const res = await fetch('https://invest-iq-finance-demo-1.onrender.com/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential }),
@@ -71,7 +71,7 @@ export function SignInPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/auth/signin", {
+      const response = await fetch("https://invest-iq-finance-demo-1.onrender.com/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -173,7 +173,7 @@ export function SignInPage() {
   data-callback="handleGoogleSignIn"
   data-context="signin"
   data-ux_mode="popup"
-  data-login_uri="http://localhost:5001/api/auth/google" // For local testing
+  data-login_uri="https://invest-iq-finance-demo-1.onrender.com/api/auth/google" // For local testing
 ></div>
 <div 
   className="g_id_signin"

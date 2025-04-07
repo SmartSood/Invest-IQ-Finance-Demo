@@ -27,7 +27,7 @@ const MainContent = () => {
 
     const fetchModules = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/modules');
+        const response = await axios.get('https://invest-iq-finance-demo-1.onrender.com/api/modules');
         setModules(response.data);
       } catch (error) {
         console.error("Error fetching modules:", error);
@@ -44,7 +44,7 @@ const MainContent = () => {
   const handleModuleSelect = async (moduleNumber) => {
     try {
       const userId = localStorage.getItem('userId');
-      await axios.post('http://localhost:5001/api/users/add-first-module', {
+      await axios.post('https://invest-iq-finance-demo-1.onrender.com/api/users/add-first-module', {
         userId,
         moduleId: moduleNumber
       });

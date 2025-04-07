@@ -15,11 +15,10 @@ export function Practice() {
   const [totalXP, setTotalXP] = useState(0);
   const navigate = useNavigate();
   const { moduleId, levelId } = useParams();
-  const { xp, setXp, badges, setBadges } = useXp();
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(`http://localhost:5001/api/module/${moduleId}/level/${levelId}/questions`);
+        const response = await axios.get(`https://invest-iq-finance-demo-1.onrender.com/api/module/${moduleId}/level/${levelId}/questions`);
         setQuestions(response.data);
       } catch (error) {
         console.error("Error fetching questions:", error);
@@ -28,7 +27,7 @@ export function Practice() {
     };
 
     fetchQuestions();
-  }, [moduleId, levelId, navigate,setXp]);
+  }, [moduleId, levelId, navigate]);
 
   const handleOptionSelect = (optionIndex) => {
     if (!isAnswerChecked) {
@@ -53,7 +52,7 @@ export function Practice() {
   const updateUserXP = async () => {
     try {
       const userId = localStorage.getItem("userId");
-      await axios.post('http://localhost:5001/api/user/update-xp', {
+      await axios.post('https://invest-iq-finance-demo-1.onrender.com/api/user/update-xp', {
         xp: totalXP,
         moduleId:moduleId,
         levelId:levelId,

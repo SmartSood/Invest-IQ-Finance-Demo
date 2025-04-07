@@ -165,7 +165,7 @@ export function AboutModule() {
           throw new Error("Module ID not provided");
         }
         
-        const response = await fetch(`http://localhost:5001/api/Module/${moduleId}`);
+        const response = await fetch(`https://invest-iq-finance-demo-1.onrender.com/api/Module/${moduleId}`);
         if (!response.ok) {
           throw new Error(t(`HTTP error! status: ${response.status}`));
         }
