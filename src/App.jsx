@@ -28,13 +28,8 @@ import { Contact } from './component/Contact/Contact'
 import { Policies } from './component/Policies/Policies'
 import About from './component/About/About' // Changed this line
 import My_modules from './component/Learning/My_modules';
+import MainContent from './component/Learning/Modules';
 
-const data = {
-  level: 1,
-  progress: 50,
-  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-  documentation: 'This is a sample documentation text. Replace this with actual documentation content from JSON.'
-};
 
 function App() {
   const [count, setCount] = useState(0)
@@ -74,10 +69,12 @@ function App() {
             <Route path='/about' element={<About/>}/>
 
             <Route element={<ProtectedRoute />}>
-              <Route path='/login/learning' element={<LearningApp/>}/>
-              <Route path='/login/learning/module/about' element={<AboutModule/>}/>
-              <Route path='/login/learning/module/level' element={<LevelApp data={data}/>}/>
-              <Route path='/login/learning/module/practice' element={<Practice/>}/>
+            <Route path='/login/learning' element={<LearningApp/>}/>
+  <Route path='/login/learning/modules' element={<MainContent/>}/>
+  <Route path='/login/learning/my_modules' element={<My_modules/>}/>
+  <Route path='/login/learning/my_modules/about/:moduleId' element={<AboutModule/>}/>
+              <Route path='/login/learning/module/:moduleId/level/:levelId' element={<LevelApp />}/>
+              <Route path='/login/learning/module/:moduleId/level/:levelId/practice' element={<Practice/>}/>
               <Route path='login/learning/module/level/finish' element={<LevelFinishApp/>}/>
               <Route path='login/learning/module/finish' element={<LevelFinishApp2/>}/>
               <Route path='/login/analysis' element={<QuestionnaireApp/>}/>

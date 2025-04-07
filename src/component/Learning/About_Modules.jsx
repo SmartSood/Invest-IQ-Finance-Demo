@@ -142,7 +142,7 @@
 //   );
 // }
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslationContext } from '../../context/TranslationContext';
 import TranslatorText from '../Text';
 import Navbar from "../navbarModule";
@@ -156,11 +156,16 @@ export function AboutModule() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(t("Learning Hub"));
+  const { moduleId } = useParams(); // Get moduleId from URL params
 
   useEffect(() => {
     const fetchModuleData = async () => {
       try {
-        const response = await fetch("https://invest-iq-finance-demo-1.onrender.com/api/Module/1");
+        if (!moduleId) {
+          throw new Error("Module ID not provided");
+        }
+        
+        const response = await fetch(`http://localhost:5001/api/Module/${moduleId}`);
         if (!response.ok) {
           throw new Error(t(`HTTP error! status: ${response.status}`));
         }
@@ -175,10 +180,10 @@ export function AboutModule() {
     };
 
     fetchModuleData();
-  }, [t]); // Added t to dependencies
+  }, [t, moduleId]); // Added moduleId to dependencies
 
   const handleRowClick = (levelId) => {
-    navigate(`/login/learning/module/level?levelId=${levelId}`);
+    navigate(`/login/learning/module/${moduleId}/level/${levelId}`);
   };
 
   // Safer translation function with null checks
@@ -237,7 +242,7 @@ export function AboutModule() {
 
             {/* About the Module heading */}
             <div className="flex flex-col justify-center text-black text-3xl font-aeonik font-bold mb-5 w-full">
-              <TranslatorText>My  Module</TranslatorText>
+              <TranslatorText>My Module</TranslatorText>
             </div>
 
             {/* Module description - translated */}

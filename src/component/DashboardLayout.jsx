@@ -53,7 +53,7 @@ export default function  DashboardLayout({ children, activeSection, setActiveSec
                 className="p-2 rounded-xl cursor-pointer hover:bg-gray-100"
                 onClick={() => {
                   setActiveSection("Learning Hub");
-                  navigate("/login/learning");
+                  navigate("/login/learning/my_modules");
                 }}
                 style={activeSection === "Learning Hub" ? activeItemStyle : navItemStyle}
               >

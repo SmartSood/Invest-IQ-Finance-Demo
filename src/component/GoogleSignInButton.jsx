@@ -8,7 +8,7 @@ const GoogleSignInButton = () => {
 
   const handleGoogleSignIn = async (response) => {
     try {
-      const res = await fetch("https://invest-iq-finance-demo-1.onrender.com/api/auth/google", {
+      const res = await fetch("http://localhost:5001/api/auth/google", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

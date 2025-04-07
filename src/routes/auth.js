@@ -42,12 +42,10 @@ router.post("/signup", async (req, res) => {
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, SECRET_KEY, { expiresIn: "1h" });
-
-    res.status(201).json({ message: "User registered successfully", token });
+    res.status(201).json({ message: "User registered successfully", token ,  userId: user._id });
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: "Server error" });
-
   }
 });
 router.post("/signin", async (req, res) => {
